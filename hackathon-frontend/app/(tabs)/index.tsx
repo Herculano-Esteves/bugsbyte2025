@@ -1,4 +1,4 @@
-// app/index.tsx (se tiveres o Expo Router)
+// app/index.tsx (se tiveres o Expo Router) 
 // ou App.tsx, se for um projeto Expo tradicional
 
 import React from 'react';
@@ -12,5 +12,3 @@ export default function Home() {
     </View>
   );
 }
-
-
