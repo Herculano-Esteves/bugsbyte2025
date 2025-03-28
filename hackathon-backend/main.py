@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from sqlmodel import Field, Session, SQLModel, create_engine, select
+from pydantic import BaseModel
+
 
 app = FastAPI()
 
@@ -22,10 +24,12 @@ def on_startup():
 @app.post("/users/")
 def create_user(user: User):
     with Session(engine) as session:
-        session.add(user)
+        db_user = User(name=user.name, email=user.email)
+        session.add(db_user)
         session.commit()
-        session.refresh(user)
-        return user
+        session.refresh(db_user)
+        return db_user
+
 
 @app.get("/users/")
 def read_users():
