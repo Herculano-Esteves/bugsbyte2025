@@ -10,7 +10,13 @@ import {
 import axios from 'axios';
 
 export default function CouponsScreen() {
-  const [coupons, setCoupons] = useState([]);
+  const [coupons, setCoupons] = useState<{ 
+    id: number; 
+    discount: number; 
+    title: string; 
+    description: string; 
+    validity: string; 
+  }[]>([]);
 
   useEffect(() => {
     // Dados mockados para testes
@@ -47,7 +53,7 @@ export default function CouponsScreen() {
     }
   };
 
-  const renderCoupon = ({ item }) => {
+  const renderCoupon = ({ item }: { item: { id: number; discount: number; title: string; description: string; validity: string } }) => {
     return (
       <View style={styles.couponCard}>
         {/* Se tiveres imagens, podes descomentar a Image abaixo e passar o link no objeto */}
