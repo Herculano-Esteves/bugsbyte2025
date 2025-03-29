@@ -107,16 +107,21 @@ def get_product_details(product_url):
         "name_url": name_url
     }
 
-# Load CSV
-csv_file = "prodTest.csv"  # Change this to your actual file path
-df = pd.read_csv(csv_file, sep=";")  # Adjust separator if necessary
+if __name__ == "__main__":
+    # Load CSV
+    csv_file = "prodTest.csv"  # Change this to your actual file path
+    df = pd.read_csv(csv_file, sep=";")
 
-# Process each product
-for product_name in df["product_dsc"]:
-    product_url = search_product(product_name)
-    if product_url:
-        details = get_product_details(product_url)
-        if details:
-            print(f"Product details: {details}")
-        else:
-            print(f"No details found for product: {product_name}")
+    # Load CSV
+    csv_file = "prodTest.csv"  # Change this to your actual file path
+    df = pd.read_csv(csv_file, sep=";")  # Adjust separator if necessary
+    
+    # Process each product
+    for product_name in df["product_dsc"]:
+        product_url = search_product(product_name)
+        if product_url:
+            details = get_product_details(product_url)
+            if details:
+                print(f"Product details: {details}")
+            else:
+                print(f"No details found for product: {product_name}")
