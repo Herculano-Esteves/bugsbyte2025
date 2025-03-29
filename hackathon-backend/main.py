@@ -21,9 +21,8 @@ SQLModel.metadata.create_all(engine_users)
 @app.on_event("startup")
 def on_startup():
     init_db()
-    if not os.path.exists(CSV_FILE_PATH):  # Ensure the CSV file exists before importing
-        raise Exception(f"CSV file not found at {CSV_FILE_PATH}")
-    #import_transactions_from_csv(CSV_FILE_PATH)
+    #import_transactions_from_csv(CSV_FILE_PATH_TRANS)
+    #import_products_from_csv(CSV_FILE_PATH_PRODS)
 
 @app.get("/")
 def read_root():
@@ -42,7 +41,7 @@ def read_users_route():
 @app.get("/transactions/")
 def read_transactions_route():
     with get_transactions_session() as session:
-        statement = select(Transaction).order_by(desc(Transaction.id)).limit(5)
+        statement = select(Transaction).order_by(desc(Transaction.id)).limit(10)
         transactions = session.exec(statement).all()
         return {"transactions": transactions}
 
@@ -60,3 +59,14 @@ def delete_transaction_route(request: TransactionDeleteRequest):
             return {"message": "Transaction deleted successfully"}
         else:
             return {"message": "Transaction not found"}
+        
+@app.post("/products/")
+def create_products_route(products: Product):
+    return create_product(products)
+
+@app.get("/products/")
+def read_products_route():
+    with get_products_session() as session:
+        statement = select(Product).order_by(desc(Product.id)).limit(10)
+        products = session.exec(statement).all()
+        return {"products": products}
