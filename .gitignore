@@ -3,11 +3,6 @@
 *.pyo
 __pycache__/
 
-# Virtual Environment (venv or other common names)
-venv/
-env/
-.venv/
-
 # SQLite database file
 *.sqlite
 
