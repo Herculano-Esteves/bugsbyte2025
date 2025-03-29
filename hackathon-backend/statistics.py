@@ -14,11 +14,17 @@ def calculate_statistics(users):
     df = pd.DataFrame([user.dict() for user in users])
 
     # Calculate statistics
+    name_lengths = df['name'].apply(len).describe().to_dict()
+    # Replace NaN with None (null in JSON) in name_lengths
+    for key, value in name_lengths.items():
+        if pd.isna(value):
+            name_lengths[key] = None
+
     stats = {
         "total_users": len(df),
         "unique_emails": df['email'].nunique(),
-        "average_name_length": df['name'].apply(len).mean(),
-        "name_lengths": df['name'].apply(len).describe().to_dict(),
+        "average_name_length": float(df['name'].apply(len).mean()),  # Ensure float
+        "name_lengths": name_lengths,
     }
 
     return stats
