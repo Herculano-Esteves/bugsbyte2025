@@ -10,7 +10,11 @@ $pip install -r requirements.txt
 
 
 Run the server:
+
+$source hackathon-backend/venv/bin/activate
+
 $uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 Know the link of the api (http://"host":8000):
+
 $hostname -I
