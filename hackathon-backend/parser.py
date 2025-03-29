@@ -1,9 +1,10 @@
 import pandas as pd
 from crud import create_transaction
-from models import Transaction, Product
+from models import Transaction, Product, WebProduct
 import logging
 from sqlmodel import Session, create_engine
-from database import engine_transactions, engine_products
+from database import engine_transactions, engine_products, engine_web_products
+from urlGetter import search_product, get_product_details
 
 # Set the logging level to ERROR (this will suppress INFO, DEBUG, and other lower severity logs)
 logging.getLogger('sqlalchemy.engine').setLevel(logging.ERROR)
@@ -134,3 +135,57 @@ def import_products_from_csv(file_path: str, batch_size: int = 1000):
             session.commit()
 
         print(f"Successfully imported {len(df)} products.")
+
+
+def import_web_products_from_cvs(file_path: str, batch_size: int = 100):
+    print("CHEGUEI")
+    df = pd.read_csv(file_path, sep=";")
+
+    required_columns = {
+        "sku", "product_dsc"
+    }
+
+    if not required_columns.issubset(df.columns):
+        missing = required_columns - set(df.columns)
+        raise ValueError(f"CSV file is missing required columns: {missing}")
+    
+    with Session(engine_web_products) as session:
+        product_batch = []
+        for _, row in df.iterrows():
+            try:
+                product_name = row["product_dsc"]
+                product_url = search_product(product_name)
+                if product_url:
+                    details = get_product_details(product_url)
+                    if details:
+                        print(f"Product details: {details}")
+                    else:
+                        print(f"No details found for product: {product_name}")
+
+                product = WebProduct(
+                    sku=row["sku"],
+                    name=row["product_dsc"],
+                    image_url=details["image_url"],
+                    price=details["price"],
+                    type_of_package=details["type_of_package"],
+                    description=details["description"],
+                    name_url=details["name_url"]
+                )
+
+                product_batch.append(product)
+
+                if len(product_batch) >= batch_size:
+                    session.add_all(product_batch)
+                    session.commit()
+                    session.flush()
+                    product_batch = []
+            except Exception as e:
+                print(f"Error processing product")
+                continue
+
+
+        if product_batch:
+            session.add_all(product_batch)
+            session.commit()
+
+        print(f"Successfully imported {len(df)} web products.")

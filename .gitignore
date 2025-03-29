@@ -4,7 +4,10 @@
 __pycache__/
 
 # SQLite database file
-*.sqlite
+db_web.sqlite
+db_users.sqlite
+db_transactions.sqlite
+db_products.sqlite
 
 # IDE or editor-specific files
 .vscode/

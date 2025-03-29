@@ -42,7 +42,6 @@ class WebProduct(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     sku: int
     name: str
-    category: int
     image_url: str
     price: float
     type_of_package: str
