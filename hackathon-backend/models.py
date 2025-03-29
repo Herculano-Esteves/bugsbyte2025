@@ -37,7 +37,7 @@ class WebSwipes(SQLModel, table=True):
     type: bool
     sku: int
 
-class Product(SQLModel, table=True):
+class WebProduct(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     sku: int
     name: str
@@ -45,3 +45,5 @@ class Product(SQLModel, table=True):
     image_url: str
     price: float
     type_of_package: str
+    description: str
+    name_url: str
