@@ -11,6 +11,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -230,7 +231,7 @@ const goToNextProduct = () => {
 
   if (currentIndex >= products.length) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <Text style={styles.screenTitle}>Parabéns!</Text>
         <Text style={styles.screenSubtitle}>
           Você avaliou todos os produtos. Estas são as suas recompensas.
@@ -271,19 +272,18 @@ const goToNextProduct = () => {
             </ScrollView>
           </>
         ) : (
-          // Centraliza a mensagem de confirmação
           <View style={styles.confirmationContainer}>
             <Text style={styles.confirmationMessage}>{confirmationMessage}</Text>
           </View>
         )}
-      </View>
+      </SafeAreaView>
     );
   }
 
   const currentProduct = products[currentIndex];
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.screenTitle}>Swipe</Text>
       <Text style={styles.screenSubtitle}>
         Explore os produtos disponíveis e escolha os seus favoritos!
@@ -317,7 +317,7 @@ const goToNextProduct = () => {
           <Text style={styles.buttonText}>♥</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
