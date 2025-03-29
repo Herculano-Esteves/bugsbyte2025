@@ -1,5 +1,6 @@
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, JSON, Column
 from pydantic import BaseModel
+from typing import Optional, Dict, List
 
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -40,8 +41,9 @@ class WebSwipes(SQLModel, table=True):
 class Product(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     sku: int
-    name: str
-    category: int
-    image_url: str
-    price: float
-    type_of_package: str
+    name: str  # Mapped from product_dsc
+    category: int  # Mapped from cat_cd
+    category_desc: str  # Mapped from cat_dsc_ext
+    short_desc: str  # Mapped from product_short_dsc
+    sales_data: List[Dict[str, float]] = Field(sa_column=Column(JSON))  # Store dates and values as JSON
+
