@@ -1,34 +1,25 @@
 from fastapi import FastAPI
-from sqlmodel import Field, Session, SQLModel, create_engine, select
+from sqlmodel import SQLModel
+from crud import create_user, read_users
+from models import User
+from database import engine
+from statistics import get_user_statistics
 
 app = FastAPI()
 
-# Database setup
-sqlite_file_name = "db.sqlite"
-engine = create_engine(f"sqlite:///{sqlite_file_name}", echo=True)
+# Create the database tables when the app starts
+SQLModel.metadata.create_all(engine)
 
-# Model
-class User(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    name: str
-    email: str
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Hackathon API!"}
 
-# Create DB
-@app.on_event("startup")
-def on_startup():
-    SQLModel.metadata.create_all(engine)
-
-# Routes
 @app.post("/users/")
-def create_user(user: User):
-    with Session(engine) as session:
-        session.add(user)
-        session.commit()
-        session.refresh(user)
-        return user
+def create_user_route(user: User):
+    return create_user(user)
 
 @app.get("/users/")
-def read_users():
-    with Session(engine) as session:
-        users = session.exec(select(User)).all()
-        return users
+def read_users_route():
+    users = read_users()
+    stats = get_user_statistics(users)
+    return {"users": users, "statistics": stats}
