@@ -1,4 +1,5 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Slot } from 'expo-router';
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, StyleSheet } from 'react-native';
