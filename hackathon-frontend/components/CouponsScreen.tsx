@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { 
   View, 
   Text, 
   StyleSheet, 
   FlatList, 
-  TouchableOpacity,
-  Image
+  TouchableOpacity, 
+  Modal, 
+  Image 
 } from 'react-native';
-import axios from 'axios';
+import QRCode from 'react-native-qrcode-svg';
 
 export default function CouponsScreen() {
   const [coupons, setCoupons] = useState<{ 
@@ -16,7 +17,10 @@ export default function CouponsScreen() {
     title: string; 
     description: string; 
     validity: string; 
+    image: string; 
   }[]>([]);
+  const [selectedCoupon, setSelectedCoupon] = useState<null | typeof coupons[0]>(null);
+  const [qrCodeVisible, setQrCodeVisible] = useState(false);
 
   useEffect(() => {
     // Dados mockados para testes
@@ -24,11 +28,10 @@ export default function CouponsScreen() {
       { 
         id: 1, 
         discount: 15, 
-        title: 'Desconto Pizzaria', 
+        title: 'Desconto Pizza Romana', 
         description: '15% de desconto na Pizza', 
         validity: '2025-04-10',
-        // Caso queiras mostrar uma imagem, coloca aqui a URI:
-        // image: 'https://example.com/pizza.png'
+        image: 'https://www.continente.pt/dw/image/v2/BDVS_PRD/on/demandware.static/-/Sites-col-master-catalog/default/dw3c035882/images/col/671/6716050-frente.jpg?sw=2000&sh=2000', // Link aleatório
       },
       { 
         id: 2, 
@@ -36,31 +39,37 @@ export default function CouponsScreen() {
         title: 'Desconto Supermercado', 
         description: '25% no supermercado', 
         validity: '2025-05-01',
-        // image: 'https://example.com/supermarket.png'
+        image: 'https://feed.continente.pt/media/1pxho2rq/nvstudio_018-_1_.webp', // Link aleatório
+      },
+      { 
+        id: 3, 
+        discount: 10, 
+        title: 'Desconto Wells ', 
+        description: '10% de desconto em medicamentos', 
+        validity: '2025-06-15',
+        image: 'https://cm-lousa.pt/wp-content/uploads/2019/06/wells.png', // Link aleatório
       },
     ]);
-
-    // Quando tiveres o backend:
-    // fetchCoupons();
   }, []);
 
-  const fetchCoupons = async () => {
-    try {
-      const response = await axios.get('http://127.0.0.1:8000/coupons');
-      setCoupons(response.data);
-    } catch (error) {
-      console.error('Erro ao buscar cupons:', error);
-    }
-  };
+  const handleShowQRCode = useCallback((coupon: typeof coupons[0]) => {
+    setSelectedCoupon(coupon);
+    setQrCodeVisible(true);
+  }, []);
 
-  const renderCoupon = ({ item }: { item: { id: number; discount: number; title: string; description: string; validity: string } }) => {
+  const handleShowDetails = useCallback((coupon: typeof coupons[0]) => {
+    setSelectedCoupon(coupon);
+  }, []);
+
+  const renderCoupon = ({ item }: { item: typeof coupons[0] }) => {
     return (
       <View style={styles.couponCard}>
-        {/* Se tiveres imagens, podes descomentar a Image abaixo e passar o link no objeto */}
-        {/* <Image source={{ uri: item.image }} style={styles.productImage} /> */}
-        
         <View style={styles.discountContainer}>
-          <Text style={styles.discountText}>{item.discount}%</Text>
+          {/* Substituir o texto pela imagem */}
+          <Image
+            source={{ uri: 'https://keepwells.pt/media/2wob3imk/benefits06.png?quality=100&rnd=132965704458570000' }}
+            style={styles.discountImage}
+          />
         </View>
 
         <View style={styles.couponInfo}>
@@ -70,12 +79,18 @@ export default function CouponsScreen() {
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleShowDetails(item)}
+          >
             <Text style={styles.buttonText}>Ver produto</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.buttonText}>Abrir câmara</Text>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleShowQRCode(item)}
+          >
+            <Text style={styles.buttonText}>Gerar QR Code</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -89,12 +104,44 @@ export default function CouponsScreen() {
         Descubra os Cupões de Desconto que andam à solta nas lojas
       </Text>
 
-      <FlatList
-        data={coupons}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderCoupon}
-        contentContainerStyle={styles.listContainer}
-      />
+      {selectedCoupon ? (
+        <View style={styles.detailsContainer}>
+          <Image source={{ uri: selectedCoupon.image }} style={styles.couponImage} />
+          <Text style={styles.detailsTitle}>{selectedCoupon.title}</Text>
+          <Text style={styles.detailsDescription}>{selectedCoupon.description}</Text>
+          <Text style={styles.detailsValidity}>Válido até {selectedCoupon.validity}</Text>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setSelectedCoupon(null)}
+          >
+            <Text style={styles.buttonText}>Fechar</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlatList
+          data={coupons}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderCoupon}
+          contentContainerStyle={styles.listContainer}
+        />
+      )}
+
+      <Modal visible={qrCodeVisible} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.qrCodeContainer}>
+            <Text style={styles.qrCodeTitle}>QR Code para {selectedCoupon?.title}</Text>
+            {selectedCoupon && (
+              <QRCode value={`Cupom ID: ${selectedCoupon.id}`} size={200} />
+            )}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setQrCodeVisible(false)}
+            >
+              <Text style={styles.buttonText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -128,13 +175,6 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
   },
-  // Se usares imagem de produto:
-  productImage: {
-    width: 60,
-    height: 60,
-    resizeMode: 'contain',
-    marginRight: 10,
-  },
   discountContainer: {
     backgroundColor: '#FF5252',
     borderRadius: 30,
@@ -142,10 +182,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     marginRight: 10,
   },
-  discountText: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: 'bold',
+  discountImage: {
+    width: 50, // Ajuste o tamanho conforme necessário
+    height: 50,
+    resizeMode: 'contain',
   },
   couponInfo: {
     flex: 1,
@@ -180,5 +220,59 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 14,
     fontWeight: '600',
+  },
+  detailsContainer: {
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  couponImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+    marginBottom: 16,
+  },
+  detailsTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#333',
+  },
+  detailsDescription: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  detailsValidity: {
+    fontSize: 14,
+    color: '#999',
+    marginBottom: 16,
+  },
+  closeButton: {
+    backgroundColor: '#FF5252',
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    alignSelf: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  qrCodeContainer: {
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  qrCodeTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
   },
 });
