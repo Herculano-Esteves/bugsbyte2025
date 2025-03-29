@@ -8,6 +8,7 @@ class User(SQLModel, table=True):
 
 class Transaction(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
+    sku: int
     account_no: str
     time_key: int
     pos_tp_cd: str
@@ -21,3 +22,26 @@ class Transaction(SQLModel, table=True):
 
 class TransactionDeleteRequest(BaseModel):
     transaction_id: int
+
+class WebUser(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str
+    token: str
+    genere: str
+    age: int
+
+class WebSwipes(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    user_id: int
+    timestamp: int
+    type: bool
+    sku: int
+
+class Product(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    sku: int
+    name: str
+    price: float
+    category: int
+    image_url: str
+    price: float

@@ -21,7 +21,7 @@ def import_transactions_from_csv(file_path: str, batch_size: int = 100000):
     df = pd.read_csv(file_path)
 
     required_columns = {
-        "account_no","time_key", "pos_tp_cd", "qty", "net_sls_amt", "gross_sls_amt",
+        "sku","account_no","time_key", "pos_tp_cd", "qty", "net_sls_amt", "gross_sls_amt",
         "direct_dscnt_amt", "trans_direct_dscnt_amt", "prod_dscnt_issued_amt", "trans_dscnt_rat_amt"
     }
 
@@ -34,6 +34,7 @@ def import_transactions_from_csv(file_path: str, batch_size: int = 100000):
         for index, row in df.iterrows():
             # Create a transaction object
             transaction = Transaction(
+                sku=row["sku"],
                 account_no=row["account_no"],
                 time_key=row["time_key"],
                 pos_tp_cd=row["pos_tp_cd"],
@@ -69,3 +70,8 @@ if __name__ == "__main__":
         print("All transactions imported successfully!")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+
+
+def import_products_from_csv(file_path: str, batch_size: int = 1000):
+    return

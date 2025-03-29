@@ -21,3 +21,7 @@ Thumbs.db         # Windows
 
 # CSV files
 *.csv
+
+#token
+token.txt
+apikey.txt
