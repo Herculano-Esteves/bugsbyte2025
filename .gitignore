@@ -9,7 +9,7 @@ env/
 .venv/
 
 # SQLite database file
-db.sqlite
+*.sqlite
 
 # IDE or editor-specific files
 .vscode/
@@ -18,3 +18,6 @@ db.sqlite
 # OS-specific files (for macOS, Windows, etc.)
 .DS_Store         # macOS
 Thumbs.db         # Windows
+
+# CSV files
+*.csv
