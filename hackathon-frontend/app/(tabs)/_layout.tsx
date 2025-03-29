@@ -1,47 +1,37 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Slot } from 'expo-router';
+import { Slot } from 'expo-rouer';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet, Image, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useTheme } from '@/hooks/ThemeContext';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { isDarkMode } = useTheme(); // Access the theme context
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: '#D32F2F', // Cor vermelha para a aba ativa
-          tabBarInactiveTintColor: '#687076', // Cor cinza para abas inativas
+          tabBarActiveTintColor: '#D32F2F', // Red for active tab
+          tabBarInactiveTintColor: '#687076', // Grey for inactive tabs
           headerShown: false,
           tabBarButton: HapticTab,
           tabBarBackground: TabBarBackground,
-          tabBarStyle: [
-            Platform.select({
-              ios: {
-                position: 'absolute',
-                backgroundColor: '#FFF', // Fundo branco para a aba
-                borderTopLeftRadius: 20,
-                borderTopRightRadius: 20,
-                height: 70,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: -2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 5,
-              },
-              default: {
-                backgroundColor: '#FFF',
-                height: 70,
-              },
-            }),
-            styles.tabBarStyle,
-          ],
+          tabBarStyle: {
+            backgroundColor: isDarkMode ? '#000' : '#FFF', // Black for dark mode, white for light mode
+            height: 70, // Height of the tab bar
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 5,  
+            elevation: 5, // Ensure shadow is applied on Android
+            borderTopWidth: 1, // Add a border to separate the tab bar
+            borderTopColor: isDarkMode ? '#444' : '#DDD', // Border color based on theme
+          },
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: '600',
@@ -49,24 +39,91 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
+          name="home"
+          options={{
+            title: 'Home',
+            tabBarIcon: ({ focused }) => (
+              <View>
+                <Svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke={focused ? 'red' : '#687076'} // Red when focused, grey otherwise
+                  fill="none"
+                  style={styles.tabIcon}
+                >
+                  <Path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+                  />
+                </Svg>
+              </View>
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="index"
           options={{
             title: 'Coupons',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="pricetag" color={color} />,
+            tabBarIcon: ({ focused }) => (
+              <View>
+                <Svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke={focused ? 'red' : '#687076'} // Red when focused, grey otherwise
+                  fill="none"
+                  style={styles.tabIcon}
+                >
+                  <Path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z"
+                  />
+                </Svg>
+              </View>
+            ),
           }}
         />
         <Tabs.Screen
           name="swiper"
           options={{
             title: 'Swiper',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="swap-horizontal" color={color} />,
+            tabBarIcon: ({ focused }) => (
+              <Image
+                source={{
+                  uri: focused
+                    ? 'https://i.imgur.com/TslSjhX.png'
+                    : 'https://i.imgur.com/V7cpNqT.png',
+                }}
+                style={styles.tabIcon}
+              />
+            ),
           }}
         />
         <Tabs.Screen
-          name="account"
+          name="more"
           options={{
-            title: 'Conta',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="person" color={color} />,
+            title: 'More',
+            tabBarIcon: ({ focused }) => (
+              <View>
+                <Svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke={focused ? 'red' : '#687076'} // Red when focused, grey otherwise
+                  fill="none"
+                  style={styles.tabIcon}
+                >
+                  <Path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
+                  />
+                </Svg>
+              </View>
+            ),
           }}
         />
       </Tabs>
@@ -75,8 +132,9 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  tabBarStyle: {
-    borderTopWidth: 0,
-    elevation: 0,
+  tabIcon: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
   },
 });

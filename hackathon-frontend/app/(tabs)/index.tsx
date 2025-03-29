@@ -1,6 +1,9 @@
 import React from 'react';
 import CouponsScreen from '../../components/CouponsScreen';
+import { useTheme } from '@/hooks/ThemeContext';
 
 export default function CouponsTab() {
-  return <CouponsScreen />;
+  const { isDarkMode } = useTheme();
+
+  return <CouponsScreen isDarkMode={isDarkMode} />;
 }

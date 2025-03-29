@@ -1,16 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  FlatList, 
-  TouchableOpacity, 
-  Modal, 
-  Image 
-} from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, Image } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+import { useTheme } from '@/hooks/ThemeContext';
 
 export default function CouponsScreen() {
+  const { isDarkMode } = useTheme(); // Adiciona o tema global
+  const styles = createStyles(isDarkMode); // Cria estilos com base no tema
+
   const [coupons, setCoupons] = useState<{ 
     id: number; 
     discount: number; 
@@ -65,7 +61,6 @@ export default function CouponsScreen() {
     return (
       <View style={styles.couponCard}>
         <View style={styles.discountContainer}>
-          {/* Substituir o texto pela imagem */}
           <Image
             source={{ uri: 'https://keepwells.pt/media/2wob3imk/benefits06.png?quality=100&rnd=132965704458570000' }}
             style={styles.discountImage}
@@ -99,9 +94,9 @@ export default function CouponsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.screenTitle}>Caça Produtos</Text>
+      <Text style={styles.screenTitle}>Meus Cupões</Text>
       <Text style={styles.screenSubtitle}>
-        Descubra os Cupões de Desconto que andam à solta nas lojas
+        Aqui encontras todos os cupões que ganhaste no Swiper
       </Text>
 
       {selectedCoupon ? (
@@ -146,133 +141,135 @@ export default function CouponsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#D32F2F', // Fundo vermelho
-    paddingTop: 50,
-    paddingHorizontal: 16,
-  },
-  screenTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFF',
-    marginBottom: 8,
-  },
-  screenSubtitle: {
-    fontSize: 16,
-    color: '#FFF',
-    marginBottom: 16,
-  },
-  listContainer: {
-    paddingBottom: 20,
-  },
-  couponCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    marginBottom: 16,
-  },
-  discountContainer: {
-    backgroundColor: '#FF5252',
-    borderRadius: 30,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    marginRight: 10,
-  },
-  discountImage: {
-    width: 50, // Ajuste o tamanho conforme necessário
-    height: 50,
-    resizeMode: 'contain',
-  },
-  couponInfo: {
-    flex: 1,
-  },
-  couponTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 4,
-    color: '#333',
-  },
-  couponDescription: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  couponValidity: {
-    fontSize: 12,
-    color: '#999',
-  },
-  buttonContainer: {
-    marginLeft: 'auto',
-    alignItems: 'flex-end',
-  },
-  actionButton: {
-    backgroundColor: '#FF5252',
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    marginBottom: 8,
-  },
-  buttonText: {
-    color: '#FFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  detailsContainer: {
-    backgroundColor: '#FFF',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 16,
-    alignItems: 'center',
-  },
-  couponImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 10,
-    marginBottom: 16,
-  },
-  detailsTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
-  },
-  detailsDescription: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  detailsValidity: {
-    fontSize: 14,
-    color: '#999',
-    marginBottom: 16,
-  },
-  closeButton: {
-    backgroundColor: '#FF5252',
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    alignSelf: 'center',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  qrCodeContainer: {
-    backgroundColor: '#FFF',
-    borderRadius: 10,
-    padding: 20,
-    alignItems: 'center',
-  },
-  qrCodeTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-});
+const createStyles = (isDarkMode: boolean) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: isDarkMode ? '#000' : '#D32F2F', // Preto ou vermelho
+      paddingTop: 50,
+      paddingHorizontal: 16,
+    },
+    screenTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: isDarkMode ? '#FFF' : '#FFF', // Branco
+      marginBottom: 8,
+    },
+    screenSubtitle: {
+      fontSize: 16,
+      color: isDarkMode ? '#CCC' : '#FFF', // Cinza claro ou branco
+      marginBottom: 16,
+    },
+    listContainer: {
+      paddingBottom: 20,
+    },
+    couponCard: {
+      backgroundColor: isDarkMode ? '#333' : '#FFF', // Cinza escuro ou branco
+      borderRadius: 10,
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 16,
+      marginBottom: 16,
+    },
+    discountContainer: {
+      backgroundColor: '#FF5252',
+      borderRadius: 30,
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      marginRight: 10,
+    },
+    discountImage: {
+      width: 50,
+      height: 50,
+      resizeMode: 'contain',
+    },
+    couponInfo: {
+      flex: 1,
+    },
+    couponTitle: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      marginBottom: 4,
+      color: isDarkMode ? '#FFF' : '#333', // Branco ou cinza escuro
+    },
+    couponDescription: {
+      fontSize: 14,
+      color: isDarkMode ? '#CCC' : '#666', // Cinza claro ou cinza médio
+      marginBottom: 4,
+    },
+    couponValidity: {
+      fontSize: 12,
+      color: isDarkMode ? '#999' : '#999', // Cinza claro
+    },
+    buttonContainer: {
+      marginLeft: 'auto',
+      alignItems: 'flex-end',
+    },
+    actionButton: {
+      backgroundColor: '#FF5252',
+      borderRadius: 8,
+      paddingVertical: 6,
+      paddingHorizontal: 10,
+      marginBottom: 8,
+    },
+    buttonText: {
+      color: '#FFF',
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    detailsContainer: {
+      backgroundColor: isDarkMode ? '#333' : '#FFF', // Cinza escuro ou branco
+      borderRadius: 10,
+      padding: 16,
+      marginBottom: 16,
+      alignItems: 'center',
+    },
+    couponImage: {
+      width: '100%',
+      height: 200,
+      borderRadius: 10,
+      marginBottom: 16,
+    },
+    detailsTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginBottom: 8,
+      color: isDarkMode ? '#FFF' : '#333', // Branco ou cinza escuro
+    },
+    detailsDescription: {
+      fontSize: 16,
+      color: isDarkMode ? '#CCC' : '#666', // Cinza claro ou cinza médio
+      marginBottom: 8,
+      textAlign: 'center',
+    },
+    detailsValidity: {
+      fontSize: 14,
+      color: isDarkMode ? '#999' : '#999', // Cinza claro
+      marginBottom: 16,
+    },
+    closeButton: {
+      backgroundColor: '#FF5252',
+      borderRadius: 8,
+      paddingVertical: 6,
+      paddingHorizontal: 10,
+      alignSelf: 'center',
+    },
+    modalContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    qrCodeContainer: {
+      backgroundColor: isDarkMode ? '#333' : '#FFF', // Cinza escuro ou branco
+      borderRadius: 10,
+      padding: 20,
+      alignItems: 'center',
+    },
+    qrCodeTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginBottom: 16,
+      color: isDarkMode ? '#FFF' : '#333', // Branco ou cinza escuro
+    },
+  });
