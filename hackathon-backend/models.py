@@ -2,10 +2,14 @@ from sqlmodel import Field, SQLModel, JSON, Column
 from pydantic import BaseModel
 from typing import Optional, Dict, List
 
+
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    name: str
-    email: str
+    account_no: str
+    segment_cd_lifestyle: int
+    segment_cd_value_cnt: int
+    segment_cd_lifestage: int
+    segment_cd_pss: int
 
 class Transaction(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
