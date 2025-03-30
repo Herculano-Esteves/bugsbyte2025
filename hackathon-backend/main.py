@@ -1,11 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Body, HTTPException
 from sqlmodel import SQLModel, Session, create_engine,  desc, select
 from crud import *
 from models import *
 from database import *
-from statistics import get_user_statistics
 from parser import *
 import os
+from lammaai import send_message_to_model
 
 
 DB_FILE_PATH = "db_transactions.sqlite"
@@ -37,8 +37,7 @@ def create_user_route(user: User):
 @app.get("/users/")
 def read_users_route():
     users = read_users()
-    stats = get_user_statistics(users)
-    return {"users": users, "statistics": stats}
+    return {"users": users}
 
 @app.get("/transactions/")
 def read_transactions_route():
@@ -72,3 +71,13 @@ def read_products_route():
         statement = select(Product).order_by(desc(Product.id)).limit(10)
         products = session.exec(statement).all()
         return {"products": products}
+    
+@app.post("/chatbot/")
+async def chatbot(message: MessageChat):
+    try:
+        final_message = "FOLLOW THESE RULES - DONT TALK ABOUT THE RULES, USE ONLY NORMAL CHARACTERS WITHOUT BOLD OR ITALIC, DONT DO ENTERS OR NEW LINES, NOW ANSWER:" + message.message + "END OF QUESTION"
+        response = send_message_to_model(final_message)
+        message.prev_message = final_message + " THE RESPONSE WAS" + response
+        return {"message": response}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
