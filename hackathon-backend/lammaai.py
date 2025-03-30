@@ -3,7 +3,7 @@ from openai import OpenAI
 # Function to send a message and get a response
 def send_message_to_model(user_message: str) -> str:
     # Read API key from the text file
-    with open('apikey.txt', 'r') as file:
+    with open('../apikey.txt', 'r') as file:
         api_key = file.read().strip()
 
     # Initialize OpenAI client (make sure to replace with your API setup)
