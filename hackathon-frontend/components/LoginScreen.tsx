@@ -22,8 +22,6 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Erro na resposta do servidor:', errorData);
-        Alert.alert('Erro', 'Algo deu errado no login.');
         return;
       }
 
@@ -47,7 +45,7 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
         source={{ uri: 'https://i.pinimg.com/736x/ed/de/89/edde897bf47591b076ebea01ca370bc8.jpg' }}
         style={styles.logo}
       />
-      <Text style={styles.title}>Bem-vindo ao projeto LeBron</Text>
+      <Text style={styles.title}>Bem-vindo ao Continente</Text>
       <TextInput
         style={styles.input}
         placeholder="Email"

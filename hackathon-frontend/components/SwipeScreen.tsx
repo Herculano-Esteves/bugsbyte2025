@@ -43,8 +43,6 @@ export default function SwipeScreen() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Erro na resposta do servidor:', errorData);
-        Alert.alert('Erro', 'Algo deu errado ao buscar os cupons.');
         return;
       }
 
@@ -73,8 +71,6 @@ export default function SwipeScreen() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Erro na resposta do servidor:', errorData);
-        Alert.alert('Erro', 'Algo deu errado ao buscar os produtos.');
         return;
       }
 
@@ -110,8 +106,6 @@ export default function SwipeScreen() {
   
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Erro na resposta do servidor:', errorData);
-        Alert.alert('Erro', 'Algo deu errado ao confirmar o swipe.');
         return;
       }
   
@@ -139,8 +133,6 @@ export default function SwipeScreen() {
   
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Erro na resposta do servidor:', errorData);
-        Alert.alert('Erro', 'Algo deu errado ao enviar os cupons.');
         return;
       }
   
@@ -417,7 +409,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', // Alinha o conteúdo horizontalmente
     alignItems: 'center',
     justifyContent: 'space-between', // Garante que os elementos fiquem nas extremidades
-    width: 370, // Largura do cartão
+    width: 350, // Largura do cartão
     marginBottom: 16,
     alignSelf: 'center', // Centraliza o cupom horizontalmente
     elevation: 3,
@@ -447,7 +439,7 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     backgroundColor: '#4CAF50',
-    width: 370,
+    width: 350,
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',

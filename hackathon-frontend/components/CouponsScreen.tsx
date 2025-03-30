@@ -28,8 +28,6 @@ export default function CouponsScreen() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Erro na resposta do servidor:', errorData);
-        Alert.alert('Erro', 'Algo deu errado ao buscar os cupons.');
         return;
       }
 
@@ -37,8 +35,6 @@ export default function CouponsScreen() {
       setCoupons(data); // Atualiza o estado com os cupons recebidos
       console.log('Cupons recebidos:', data);
     } catch (error) {
-      console.error('Erro na requisição:', error);
-      Alert.alert('Erro', 'Não foi possível buscar os cupons.');
     }
   };
 
