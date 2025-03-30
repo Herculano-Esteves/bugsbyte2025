@@ -9,6 +9,7 @@ import Animated, {
   interpolate,
   Extrapolate,
   runOnJS,
+  withTiming,
 } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -153,12 +154,46 @@ const goToNextProduct = () => {
     },
     onEnd: (event) => {
       if (event.translationX > 150) {
-        translateX.value = withSpring(SCREEN_WIDTH, {}, () => runOnJS(handleSwipe)('right'));
+        // Usa withTiming para uma transição rápida (200ms)
+        translateX.value = withTiming(
+          SCREEN_WIDTH,
+          { duration: 200 }, // Duração de 200ms
+          () => runOnJS(handleSwipe)('right')
+        );
       } else if (event.translationX < -150) {
-        translateX.value = withSpring(-SCREEN_WIDTH, {}, () => runOnJS(handleSwipe)('left'));
+        // Usa withTiming para uma transição rápida (200ms)
+        translateX.value = withTiming(
+          -SCREEN_WIDTH,
+          { duration: 200 }, // Duração de 200ms
+          () => runOnJS(handleSwipe)('left')
+        );
       } else {
-        translateX.value = withSpring(0);
-        rotate.value = withSpring(0);
+        // Retorna à posição inicial sem atraso significativo
+        translateX.value = withTiming(0, { duration: 200 });
+        rotate.value = withTiming(0, { duration: 200 });
+      }
+    },
+  });
+
+  // Outra versão para mover instantaneamente
+  const gestureHandlerInstant = useAnimatedGestureHandler({
+    onStart: (_, ctx) => {
+      ctx.startX = translateX.value;
+    },
+    onActive: (event, ctx) => {
+      translateX.value = ctx.startX + event.translationX;
+      rotate.value = (event.translationX / SCREEN_WIDTH) * 15;
+    },
+    onEnd: (event) => {
+      if (event.translationX > 150) {
+        translateX.value = SCREEN_WIDTH; // Move instantaneamente
+        runOnJS(handleSwipe)('right');
+      } else if (event.translationX < -150) {
+        translateX.value = -SCREEN_WIDTH; // Move instantaneamente
+        runOnJS(handleSwipe)('left');
+      } else {
+        translateX.value = 0;
+        rotate.value = 0;
       }
     },
   });
@@ -224,7 +259,7 @@ const goToNextProduct = () => {
 
   const handleConfirm = () => {
     setIsConfirmed(true); // Define que a confirmação foi feita
-    setConfirmationMessage('Resgate seus cupoes na aba cupoes');
+    setConfirmationMessage('Resgate os seus cupoes no separador cupoes');
     console.log('Cupoes selecionados:', selectedCoupons);
     // Adicione aqui a lógica adicional para confirmar os cupons selecionados
   };
@@ -272,7 +307,7 @@ const goToNextProduct = () => {
             </ScrollView>
           </>
         ) : (
-          <View style={styles.confirmationContainer}>
+          <View style={styles.overlayContainer}>
             <Text style={styles.confirmationMessage}>{confirmationMessage}</Text>
           </View>
         )}
@@ -398,13 +433,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  confirmationMessage: {
-    fontSize: 30,
-    color: '#FFF',
-    marginTop: -150,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
+  // confirmationMessage: {
+  //   fontSize: 30,
+  //   color: '#FFF',
+  //   marginTop: -150,
+  //   textAlign: 'center',
+  //   fontWeight: 'bold',
+  // },
   confirmationContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -417,7 +452,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start', // Alinha o conteúdo no topo
     padding: 20,
     paddingTop: 50, // Adiciona espaço no topo
-  },
+  } as ViewStyle,
   checkIcon: {
     ...iconContainer,
     left: 30,
@@ -503,5 +538,25 @@ const styles = StyleSheet.create({
     color: '#FFF',
     textAlign: 'center',
     marginBottom: 15, // Espaço abaixo do texto
+  },
+  overlayContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fundo semitransparente
+    zIndex: 10, // Garante que fique acima dos outros elementos
+  },
+  confirmationMessage: {
+    fontSize: 30,
+    color: '#FFF',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    backgroundColor: '#D32F2F', // Fundo para destacar a mensagem
+    padding: 20,
+    borderRadius: 10,
   },
 });
