@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { useUser } from '@/hooks/UserContext';
 
 export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { setUserId } = useUser();
 
   const handleLogin = async () => {
     try {
@@ -27,6 +29,7 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
 
       const data = await response.json();
       if (data.id) {
+        setUserId(Number(data.id)); // Converte data.id para inteiro antes de salvar
         Alert.alert('Login bem-sucedido!', `ID do usuário: ${data.id}`);
         onLogin();
       } else {
