@@ -304,12 +304,14 @@ const goToNextProduct = () => {
       <PanGestureHandler onGestureEvent={gestureHandler}>
         <Animated.View style={[styles.card, animatedCardStyle]}>
           <Image
-            source={currentProduct.image}
+            source={{ uri: currentProduct.image_url }} // Exibe a imagem do produto
             style={styles.productImage}
             resizeMode="cover"
           />
-          <Text style={styles.productName}>{currentProduct.name}</Text>
-          <Text style={styles.productDescription}>{currentProduct.description}</Text>
+          <Text style={styles.productName}>{currentProduct.name_url}</Text> {/* Exibe o nome do produto */}
+          <Text style={styles.productDescription}>
+            Preço: €{currentProduct.price.toFixed(2)} / {currentProduct.type_of_package} {/* Exibe o preço e o tipo de embalagem */}
+          </Text>
 
           {/* Ícone de "Gosto" */}
           <Animated.View style={[styles.checkIcon, checkStyle]}>
