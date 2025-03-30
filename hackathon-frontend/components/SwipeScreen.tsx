@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', // Alinha o conteúdo horizontalmente
     alignItems: 'center',
     justifyContent: 'space-between', // Garante que os elementos fiquem nas extremidades
-    width: 350, // Largura do cartão
+    width: 330, // Largura do cartão
     marginBottom: 16,
     alignSelf: 'center', // Centraliza o cupom horizontalmente
     elevation: 3,
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     backgroundColor: '#4CAF50',
-    width: 350,
+    width: 330,
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',

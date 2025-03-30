@@ -42,7 +42,7 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   return (
     <View style={styles.container}>
       <Image
-        source={{ uri: 'https://i.pinimg.com/736x/ed/de/89/edde897bf47591b076ebea01ca370bc8.jpg' }}
+        source={{ uri: 'https://play-lh.googleusercontent.com/lJKRzAhHilS1kvk4slcYJKXVPzN-4l4DBOha8DnYcRRYVBSLYwavfSIUE35_GV2ohA' }}
         style={styles.logo}
       />
       <Text style={styles.title}>Bem-vindo ao Continente</Text>
