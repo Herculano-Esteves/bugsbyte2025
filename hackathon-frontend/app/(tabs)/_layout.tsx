@@ -1,5 +1,5 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Slot } from 'expo-rouer';
+import { Slot } from 'expo-router';
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Image, View } from 'react-native';
@@ -63,9 +63,9 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="index"
+          name="cupoes"
           options={{
-            title: 'Cupoes',
+            title: 'Cupões',
             tabBarIcon: ({ focused }) => (
               <View>
                 <Svg
@@ -102,6 +102,30 @@ export default function TabLayout() {
             ),
           }}
         />
+        <Tabs.Screen
+                  name="chat"
+                  options={{
+                    title: 'Chat',
+                    tabBarIcon: ({ focused }) => (
+                      <View>
+                        <Svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke={focused ? 'red' : '#687076'} // Red when focused, grey otherwise
+                          fill="none"
+                          style={styles.tabIcon}
+                        >
+                          <Path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 20.25c4.97 0 9-3.14 9-7.5s-4.03-7.5-9-7.5-9 3.14-9 7.5c0 1.61.63 3.1 1.69 4.31-.43 1.72-1.3 3.19-1.31 3.21a.375.375 0 0 0 .53.46c.02-.01 2.02-1.01 3.62-2.01a10.93 10.93 0 0 0 4.47.98Z"
+                          />
+                        </Svg>
+                      </View>
+                    ),
+                  }}
+                />
         <Tabs.Screen
           name="more"
           options={{
