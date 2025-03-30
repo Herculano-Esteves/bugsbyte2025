@@ -23,3 +23,6 @@ Thumbs.db         # Windows
 #token
 token.txt
 apikey.txt
+
+# debug
+output.txt
