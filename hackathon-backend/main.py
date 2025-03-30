@@ -108,10 +108,8 @@ async def read_web_users_route(login_info: LoginInfo):
                 # User doesn't exist, create new user
                 create_web_user_data = WebUser(
                     name=login_info.username,
-                    token=login_info.password,  # Using password as token (in practice, consider hashing)
-                    # Optional default fields if your model requires them
-                    # genere="M",  
-                    # age=20       
+                    token=login_info.password,
+                    sales_data=list(),  # Assuming sales_data is a list, initialize it as empty
                 )
                 new_user = create_web_user(create_web_user_data)
                 logger.debug(f"New user created: {new_user.name}")
@@ -193,3 +191,99 @@ async def confirm_swipe_route():
     except Exception as e:
         logger.error(f"Error in confirm swipes route: {e}")
         raise HTTPException(status_code=500, detail="Internal server error during fetching swipes")
+    
+@app.get("/cuppons/")
+async def read_cuppons_route():
+    try:
+        with Session(engine_web_products) as session:
+            # Select 10 random WebProducts
+            statement = select(WebProduct).order_by(func.random()).limit(4)
+            products = session.exec(statement).all()
+
+            if not products:
+                raise HTTPException(status_code=404, detail="No products found")
+
+            # Format the response as a list of product dictionaries
+            copounhe = [
+                {
+                    "image_url": product.image_url,
+                    "name": product.name,
+                    "sku": product.sku,
+                }
+                for product in products
+            ]
+            return copounhe
+
+    except Exception as e:
+        logger.error(f"Error in cuppons route: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error during fetching cuppons")
+    
+@app.post("/cuppons/add/")
+async def add_cuppons_route(web_product: IntSent):
+    try:
+        # Find the user by user_id
+        with Session(engine_web) as session:
+            user = session.exec(select(WebUser).where(WebUser.id == web_product.user_id)).first()
+        
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+    
+            # Append new SKU to sales_data
+            if not user.sales_data:
+                user.sales_data = []  # Ensure it's not None
+    
+            user.sales_data.append({"sku": web_product.sku})
+    
+            # Commit changes to database
+            session.add(user)
+            session.commit()
+            session.refresh(user)
+    
+            return {"message": "SKU added successfully", "updated_sales_data": user.sales_data}
+
+    except Exception as e:
+        logger.error(f"Error in add_cuppons_route: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error during adding cuppons")
+    
+@app.get("/cuppons/get/")
+async def get_cuppons_route(user_id: int):  # Expect user_id as an int, not IntSent
+    try:
+        with Session(engine_web) as session:
+            # Find the user by user_id
+            user = session.exec(select(WebUser).where(WebUser.id == user_id)).first()
+
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+
+            # Ensure sales_data is a list
+            if not user.sales_data:
+                user.sales_data = []
+
+            # Extract SKU list
+            sku_list = [item["sku"] for item in user.sales_data]
+
+            if not sku_list:
+                raise HTTPException(status_code=404, detail="User has no coupons")
+
+            # Query products in a single session
+            products = session.exec(select(WebProduct).where(WebProduct.sku.in_(sku_list))).all()
+
+            if not products:
+                raise HTTPException(status_code=404, detail="No products found for the user")
+
+            # Format the response
+            coupons = [
+                {
+                    "image_url": product.image_url,
+                    "name": product.name,
+                    "sku": product.sku,
+                }
+                for product in products
+            ]
+
+            return coupons
+
+    except Exception as e:
+        logger.error(f"Error in get_cuppons_route: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error during fetching cuppons")
+

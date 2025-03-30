@@ -5,6 +5,10 @@ from typing import Optional, Dict, List
 class MessageChat(BaseModel):
     message: str
 
+class IntSent(BaseModel):
+    sku: int
+    user_id: int
+
 class LoginInfo(BaseModel):
     username: str
     password: str
@@ -48,6 +52,7 @@ class WebUser(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
     token: str
+    sales_data: List[Dict[str, float]] = Field(sa_column=Column(JSON))
 
 
 class WebProduct(SQLModel, table=True):
@@ -67,5 +72,5 @@ class Product(SQLModel, table=True):
     category: int  # Mapped from cat_cd
     category_desc: str  # Mapped from cat_dsc_ext
     short_desc: str  # Mapped from product_short_dsc
-    sales_data: List[Dict[str, float]] = Field(sa_column=Column(JSON))  # Store dates and values as JSON
+    sales_data: List[Dict[str, int]] = Field(sa_column=Column(JSON))  # Store dates and values as JSON
 
