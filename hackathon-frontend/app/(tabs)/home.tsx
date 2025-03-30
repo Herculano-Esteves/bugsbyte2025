@@ -37,13 +37,17 @@ export default function HomeScreen() {
         <View style={styles.quickAccessContainer}>
           {[
             { label: 'Avaliar compras', image: 'https://i.imgur.com/qzllEw2.jpeg' },
-            { label: 'Gestão de Conta', image: 'https://i.imgur.com/aJDS1zv.jpeg' },
+            { label: 'Chat', image: 'https://i.imgur.com/aJDS1zv.jpeg', action: () => router.push('/chat') }, // Navega para o chat
             { label: 'Continente Pay', image: 'https://i.imgur.com/6CS28cP.jpeg' },
           ].map((item, index) => (
-            <View key={index} style={styles.quickAccessItem}>
+            <TouchableOpacity
+              key={index}
+              style={styles.quickAccessItem}
+              onPress={item.action}
+            >
               <Image source={{ uri: item.image }} style={styles.quickAccessIcon} />
               <Text style={styles.quickAccessLabel}>{item.label}</Text>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
 

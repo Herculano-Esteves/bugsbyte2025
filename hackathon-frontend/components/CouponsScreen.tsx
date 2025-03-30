@@ -4,8 +4,8 @@ import QRCode from 'react-native-qrcode-svg';
 import { useTheme } from '@/hooks/ThemeContext';
 
 export default function CouponsScreen() {
-  const { isDarkMode } = useTheme(); // Adiciona o tema global
-  const styles = createStyles(isDarkMode); // Cria estilos com base no tema
+  const { isDarkMode } = useTheme();
+  const styles = createStyles(isDarkMode);
 
   const [coupons, setCoupons] = useState<{ 
     id: number; 
@@ -19,7 +19,6 @@ export default function CouponsScreen() {
   const [qrCodeVisible, setQrCodeVisible] = useState(false);
 
   useEffect(() => {
-    // Dados mockados para testes
     setCoupons([
       { 
         id: 1, 
@@ -27,7 +26,7 @@ export default function CouponsScreen() {
         title: 'Desconto Pizza Romana', 
         description: '15% de desconto na Pizza', 
         validity: '2025-04-10',
-        image: 'https://www.continente.pt/dw/image/v2/BDVS_PRD/on/demandware.static/-/Sites-col-master-catalog/default/dw3c035882/images/col/671/6716050-frente.jpg?sw=2000&sh=2000', // Link aleatório
+        image: 'https://www.continente.pt/dw/image/v2/BDVS_PRD/on/demandware.static/-/Sites-col-master-catalog/default/dw3c035882/images/col/671/6716050-frente.jpg?sw=2000&sh=2000',
       },
       { 
         id: 2, 
@@ -35,15 +34,15 @@ export default function CouponsScreen() {
         title: 'Desconto Supermercado', 
         description: '25% no supermercado', 
         validity: '2025-05-01',
-        image: 'https://feed.continente.pt/media/1pxho2rq/nvstudio_018-_1_.webp', // Link aleatório
+        image: 'https://feed.continente.pt/media/1pxho2rq/nvstudio_018-_1_.webp',
       },
       { 
         id: 3, 
         discount: 10, 
-        title: 'Desconto Wells ', 
+        title: 'Desconto Wells', 
         description: '10% de desconto em medicamentos', 
         validity: '2025-06-15',
-        image: 'https://cm-lousa.pt/wp-content/uploads/2019/06/wells.png', // Link aleatório
+        image: 'https://cm-lousa.pt/wp-content/uploads/2019/06/wells.png',
       },
     ]);
   }, []);
@@ -53,38 +52,20 @@ export default function CouponsScreen() {
     setQrCodeVisible(true);
   }, []);
 
-  const handleShowDetails = useCallback((coupon: typeof coupons[0]) => {
-    setSelectedCoupon(coupon);
-  }, []);
-
   const renderCoupon = ({ item }: { item: typeof coupons[0] }) => {
     return (
       <View style={styles.couponCard}>
-        <View style={styles.discountContainer}>
-          <Image
-            source={{ uri: 'https://keepwells.pt/media/2wob3imk/benefits06.png?quality=100&rnd=132965704458570000' }}
-            style={styles.discountImage}
-          />
-        </View>
-
+        <Image source={{ uri: item.image }} style={styles.couponImage} />
         <View style={styles.couponInfo}>
           <Text style={styles.couponTitle}>{item.title}</Text>
           <Text style={styles.couponDescription}>{item.description}</Text>
           <Text style={styles.couponValidity}>Válido até {item.validity}</Text>
         </View>
-
         <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => handleShowDetails(item)}
-          >
+          <TouchableOpacity style={styles.productButton}>
             <Text style={styles.buttonText}>Ver produto</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => handleShowQRCode(item)}
-          >
+          <TouchableOpacity style={styles.qrCodeButton} onPress={() => handleShowQRCode(item)}>
             <Text style={styles.buttonText}>Gerar QR Code</Text>
           </TouchableOpacity>
         </View>
@@ -98,29 +79,12 @@ export default function CouponsScreen() {
       <Text style={styles.screenSubtitle}>
         Aqui encontras todos os cupões que ganhaste no Swiper
       </Text>
-
-      {selectedCoupon ? (
-        <View style={styles.detailsContainer}>
-          <Image source={{ uri: selectedCoupon.image }} style={styles.couponImage} />
-          <Text style={styles.detailsTitle}>{selectedCoupon.title}</Text>
-          <Text style={styles.detailsDescription}>{selectedCoupon.description}</Text>
-          <Text style={styles.detailsValidity}>Válido até {selectedCoupon.validity}</Text>
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={() => setSelectedCoupon(null)}
-          >
-            <Text style={styles.buttonText}>Fechar</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={coupons}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderCoupon}
-          contentContainerStyle={styles.listContainer}
-        />
-      )}
-
+      <FlatList
+        data={coupons}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderCoupon}
+        contentContainerStyle={styles.listContainer}
+      />
       <Modal visible={qrCodeVisible} transparent={true} animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.qrCodeContainer}>
@@ -145,123 +109,89 @@ const createStyles = (isDarkMode: boolean) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: isDarkMode ? '#000' : '#D32F2F', // Preto ou vermelho
-      paddingTop: 50,
+      backgroundColor: '#D32F2F', // Sempre vermelho, independente do tema
       paddingHorizontal: 16,
+      paddingTop: 50,
     },
     screenTitle: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: isDarkMode ? '#FFF' : '#FFF', // Branco
+      color: '#FFF', // Branco para o título
       marginBottom: 8,
     },
     screenSubtitle: {
       fontSize: 16,
-      color: isDarkMode ? '#CCC' : '#FFF', // Cinza claro ou branco
+      color: '#FFF', // Branco para o subtítulo
       marginBottom: 16,
     },
     listContainer: {
       paddingBottom: 20,
     },
     couponCard: {
-      backgroundColor: isDarkMode ? '#333' : '#FFF', // Cinza escuro ou branco
+      backgroundColor: isDarkMode ? '#1C1C1C' : '#FFF', // Preto no modo escuro, branco no claro
       borderRadius: 10,
-      flexDirection: 'row',
-      alignItems: 'center',
       padding: 16,
       marginBottom: 16,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
     },
-    discountContainer: {
-      backgroundColor: '#FF5252',
-      borderRadius: 30,
-      paddingVertical: 10,
-      paddingHorizontal: 14,
-      marginRight: 10,
-    },
-    discountImage: {
-      width: 50,
-      height: 50,
-      resizeMode: 'contain',
+    couponImage: {
+      width: '100%',
+      height: 150,
+      borderRadius: 10,
+      marginBottom: 10,
     },
     couponInfo: {
-      flex: 1,
+      marginBottom: 10,
     },
     couponTitle: {
-      fontSize: 16,
+      fontSize: 18,
       fontWeight: 'bold',
+      color: isDarkMode ? '#FFF' : '#333', // Branco no modo escuro, cinza escuro no claro
       marginBottom: 4,
-      color: isDarkMode ? '#FFF' : '#333', // Branco ou cinza escuro
     },
     couponDescription: {
       fontSize: 14,
-      color: isDarkMode ? '#CCC' : '#666', // Cinza claro ou cinza médio
+      color: isDarkMode ? '#CCC' : '#666', // Cinza claro no modo escuro, médio no claro
       marginBottom: 4,
     },
     couponValidity: {
       fontSize: 12,
-      color: isDarkMode ? '#999' : '#999', // Cinza claro
+      color: isDarkMode ? '#666' : '#999', // Cinza médio no modo escuro, claro no claro
     },
     buttonContainer: {
-      marginLeft: 'auto',
-      alignItems: 'flex-end',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
     },
-    actionButton: {
-      backgroundColor: '#FF5252',
+    productButton: {
+      backgroundColor: '#FF5252', // Vermelho para o botão "Ver produto"
       borderRadius: 8,
-      paddingVertical: 6,
-      paddingHorizontal: 10,
-      marginBottom: 8,
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+    },
+    qrCodeButton: {
+      backgroundColor: '#FF9800', // Laranja para o botão "Gerar QR Code"
+      borderRadius: 8,
+      paddingVertical: 10,
+      paddingHorizontal: 16,
     },
     buttonText: {
-      color: '#FFF',
+      color: '#FFF', // Branco para o texto dos botões
       fontSize: 14,
-      fontWeight: '600',
-    },
-    detailsContainer: {
-      backgroundColor: isDarkMode ? '#333' : '#FFF', // Cinza escuro ou branco
-      borderRadius: 10,
-      padding: 16,
-      marginBottom: 16,
-      alignItems: 'center',
-    },
-    couponImage: {
-      width: '100%',
-      height: 200,
-      borderRadius: 10,
-      marginBottom: 16,
-    },
-    detailsTitle: {
-      fontSize: 20,
       fontWeight: 'bold',
-      marginBottom: 8,
-      color: isDarkMode ? '#FFF' : '#333', // Branco ou cinza escuro
-    },
-    detailsDescription: {
-      fontSize: 16,
-      color: isDarkMode ? '#CCC' : '#666', // Cinza claro ou cinza médio
-      marginBottom: 8,
       textAlign: 'center',
-    },
-    detailsValidity: {
-      fontSize: 14,
-      color: isDarkMode ? '#999' : '#999', // Cinza claro
-      marginBottom: 16,
-    },
-    closeButton: {
-      backgroundColor: '#FF5252',
-      borderRadius: 8,
-      paddingVertical: 6,
-      paddingHorizontal: 10,
-      alignSelf: 'center',
     },
     modalContainer: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fundo semitransparente
     },
     qrCodeContainer: {
-      backgroundColor: isDarkMode ? '#333' : '#FFF', // Cinza escuro ou branco
+      backgroundColor: isDarkMode ? '#1C1C1C' : '#FFF', // Preto no modo escuro, branco no claro
       borderRadius: 10,
       padding: 20,
       alignItems: 'center',
@@ -270,6 +200,13 @@ const createStyles = (isDarkMode: boolean) =>
       fontSize: 18,
       fontWeight: 'bold',
       marginBottom: 16,
-      color: isDarkMode ? '#FFF' : '#333', // Branco ou cinza escuro
+      color: isDarkMode ? '#FFF' : '#333', // Branco no modo escuro, cinza escuro no claro
+    },
+    closeButton: {
+      backgroundColor: '#FF5252', // Vermelho para o botão "Fechar"
+      borderRadius: 8,
+      paddingVertical: 6,
+      paddingHorizontal: 10,
+      alignSelf: 'center',
     },
   });

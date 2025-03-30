@@ -7,7 +7,8 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
 
   const handleLogin = () => {
     // Credenciais fixas
-    const validEmail = 'mcsonae@bugsbyte.com';
+    //const validEmail = 'mcsonae@bugsbyte.com';
+    const validEmail = 'a';
     const validPassword = '1234';
 
     if (email === validEmail && password === validPassword) {
