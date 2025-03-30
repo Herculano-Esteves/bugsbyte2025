@@ -1,5 +1,5 @@
 from sqlmodel import Session
-from models import User, Transaction, Product
+from models import *
 from database import *
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
@@ -40,3 +40,15 @@ def read_products():
     with get_products_session() as session:
         product = session.exec(select(Product)).all()
         return product
+
+def create_web_user(user: WebUser):
+    with get_web_session() as session:
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        return user
+    
+def read_web_users():  
+    with get_web_session() as session:
+        users = session.exec(select(WebUser)).all()
+        return users
