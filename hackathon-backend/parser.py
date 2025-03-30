@@ -1,9 +1,9 @@
 import pandas as pd
 from crud import create_transaction
-from models import Transaction, Product, WebProduct
+from models import Transaction, Product, WebProduct, User
 import logging
 from sqlmodel import Session, create_engine
-from database import engine_transactions, engine_products, engine_web_products
+from database import engine_transactions, engine_products, engine_web_products, engine_users
 from urlGetter import search_product, get_product_details
 
 # Set the logging level to ERROR (this will suppress INFO, DEBUG, and other lower severity logs)
@@ -17,7 +17,11 @@ logger.propagate = False
 #CSV_FILE_PATH = "../coelho.csv"
 CSV_FILE_PATH_TRANS = "../dataset/sample_sales_info_encripted.csv"
 CSV_FILE_PATH_PRODS = "../dataset/sample_prod_info.csv"
+CSV_FILE_PATH_USERS = "../dataset/sample_account_info_encripted.csv"
 
+def safe_str(value):
+    """Convert NaN or None to an empty string, otherwise return the stripped string."""
+    return str(value).strip() if isinstance(value, str) else ""
 
 def import_transactions_from_csv(file_path: str, batch_size: int = 100000):
     df = pd.read_csv(file_path)
@@ -189,3 +193,41 @@ def import_web_products_from_cvs(file_path: str, batch_size: int = 100):
             session.commit()
 
         print(f"Successfully imported {len(df)} web products.")
+
+def import_users_from_csv(file_path: str, batch_size: int = 1000):
+    df = pd.read_csv(file_path)
+
+    required_columns = {
+        "account_no", "segment_cd_lifestyle",
+        "segment_cd_value_cnt", "segment_cd_lifestage",
+        "segment_cd_pss"
+    }
+
+    if not required_columns.issubset(df.columns):
+        missing = required_columns - set(df.columns)
+        raise ValueError(f"CSV file is missing required columns: {missing}")
+
+    with Session(engine_users) as session:
+        user_batch = []
+        for _, row in df.iterrows():
+            user = User(
+                account_no=row["account_no"],
+                segment_cd_lifestyle=row["segment_cd_lifestyle"],
+                segment_cd_value_cnt=row["segment_cd_value_cnt"],
+                segment_cd_lifestage=row["segment_cd_lifestage"],
+                segment_cd_pss=row["segment_cd_pss"]
+            )
+
+            user_batch.append(user)
+
+            if len(user_batch) >= batch_size:
+                session.add_all(user_batch)
+                session.commit()
+                session.flush()
+                user_batch = []
+
+        if user_batch:
+            session.add_all(user_batch)
+            session.commit()
+
+        print(f"Successfully imported {len(df)} users.")

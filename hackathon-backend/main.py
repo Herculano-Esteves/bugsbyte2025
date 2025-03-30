@@ -23,7 +23,8 @@ def on_startup():
     init_db()
     #import_transactions_from_csv(CSV_FILE_PATH_TRANS)
     #import_products_from_csv(CSV_FILE_PATH_PRODS)
-    import_web_products_from_cvs(CSV_FILE_PATH_PRODS)
+    #import_web_products_from_cvs(CSV_FILE_PATH_PRODS)
+    #import_users_from_csv(CSV_FILE_PATH_USERS)
 
 @app.get("/")
 def read_root():
