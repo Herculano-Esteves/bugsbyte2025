@@ -58,3 +58,10 @@ class Product(SQLModel, table=True):
     short_desc: str  # Mapped from product_short_dsc
     sales_data: List[Dict[str, float]] = Field(sa_column=Column(JSON))  # Store dates and values as JSON
 
+class Data (SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    sku: int
+    qty: float # talvez n
+    net_sls_amt: float
+    gross_sls_amt: float
+    sales_data: List[Dict[str, float]] = Field(sa_column=Column(JSON))

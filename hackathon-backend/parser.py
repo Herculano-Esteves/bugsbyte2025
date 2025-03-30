@@ -134,3 +134,7 @@ def import_products_from_csv(file_path: str, batch_size: int = 1000):
             session.commit()
 
         print(f"Successfully imported {len(df)} products.")
+        
+# ^ conseguir fazer queries de Nome para ID e fazer o resto das Queries de ID pra info importante
+
+# com as bases de dados, separar por product ID
