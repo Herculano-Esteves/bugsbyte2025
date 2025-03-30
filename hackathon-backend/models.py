@@ -7,11 +7,16 @@ class MessageChat(BaseModel):
 
 class IntSent(BaseModel):
     sku: int
+    sku2: int
+    user_id: int
+
+class IdUser(BaseModel):
     user_id: int
 
 class LoginInfo(BaseModel):
     username: str
     password: str
+
 
 class SwipeBeguin(BaseModel):
     user_id: int
@@ -52,7 +57,7 @@ class WebUser(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
     token: str
-    sales_data: List[Dict[str, float]] = Field(sa_column=Column(JSON))
+    sales_data: List[Dict[str, int]] = Field(default_factory=list, sa_column=Column(JSON))
 
 
 class WebProduct(SQLModel, table=True):
