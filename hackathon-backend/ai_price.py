@@ -101,7 +101,7 @@ def save_to_json(data, filename):
         json.dump(data, json_file, indent=4)
 
 with get_products_session() as sessionProd, get_transactions_session() as sessionTra, get_users_session() as sessionUser:
-    name = "FRANGO PEITO LIMPO ATM LS CFA"
+    name = "ARROZ CAROLINO CAÇAROLA 1KG"
     resultProd = get_product_info(name, sessionProd)
     resultTra = get_transactions_by_sku(resultProd["sku"], sessionTra)
     resultUser = list()
@@ -194,12 +194,43 @@ model.load_model("price_prediction_model.json")
 # Select some test data
 sample_data = X_test.iloc[:5]  # Select the first 5 rows for testing
 
-# Make predictions
-predictions = model.predict(sample_data)
+# Create discount variations and make predictions
+# for i, (index, row) in enumerate(sample_data.iterrows()):
+#     print(f"\nSample {i+1}:")
+#     print(row)
+#     original_discount = row["discount_ratio"]
 
-# Print samples and predictions
-print("Sample Test Data and Predictions:")
+#     discount_variations = [original_discount * 0.5, original_discount, original_discount * 1.5] #Example
+#     for discount in discount_variations:
+#         temp_row = row.copy()
+#         temp_row["discount_ratio"] = discount
+#         prediction = model.predict(pd.DataFrame([temp_row]))[0]
+#         print(f"  Discount: {discount:.2f}, Predicted next-day price: {prediction:.2f}")
+
+
+#Adding to the previous code.
+#Assume price elasticity for this example. Change for your data.
+original_prices = y_test.iloc[:5].values # Get the original prices.
+
+#Assume price elasticity for this example. Change for your data.
+price_elasticity = -1.5 # Example: -1.5 (elastic demand)
+
+# Create discount variations and make predictions
 for i, (index, row) in enumerate(sample_data.iterrows()):
     print(f"\nSample {i+1}:")
     print(row)
-    print(f"Predicted next-day price: {predictions[i]:.2f}")
+    original_discount = row["discount_ratio"]
+    original_price = original_prices[i] # get the original price.
+    original_sales = row["total_sales"]
+
+    discount_variations = [original_discount * 0.5, original_discount, original_discount * 1.5] #Example
+    for discount in discount_variations:
+        temp_row = row.copy()
+        temp_row["discount_ratio"] = discount
+        prediction = model.predict(pd.DataFrame([temp_row]))[0]
+        print(f"  Discount: {discount:.2f}, Predicted next-day price: {prediction:.2f}")
+
+        price_change_percent = (prediction - original_price) / original_price
+        sales_change_percent = price_change_percent * price_elasticity
+        predicted_sales = original_sales * (1 + sales_change_percent)
+        print(f"    Predicted sales: {predicted_sales:.2f}")
