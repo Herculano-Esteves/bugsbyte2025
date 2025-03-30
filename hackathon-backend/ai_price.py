@@ -185,7 +185,9 @@ model.save_model("price_prediction_model.json")
 
 print("Model training complete.")
 
-
+##
+# AREA DE TESTES, VALE APENA SO RODAR O QUE TA EM CIMA 1 VEZ E DPS SO DAR LOAD E TESTAR
+##          vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 # Load the trained model
 model = xgb.XGBRegressor()
