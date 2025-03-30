@@ -1,17 +1,25 @@
 from fastapi import FastAPI, Body, HTTPException
-from sqlmodel import SQLModel, Session, create_engine,  desc, select
+from sqlmodel import SQLModel, Session, create_engine,  desc, func, select
 from crud import *
 from models import *
 from database import *
 from parser import *
 import os
 from lammaai import send_message_to_model
+from fastapi.middleware.cors import CORSMiddleware
 
 
 DB_FILE_PATH = "db_transactions.sqlite"
 
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Altere para domínios específicos em produção
+    allow_credentials=True,
+    allow_methods=["*"],  # Permite todos os métodos (GET, POST, etc.)
+    allow_headers=["*"],  # Permite todos os cabeçalhos
+)
 
 # Create the database tables when the app starts
 SQLModel.metadata.create_all(engine_web)
@@ -84,9 +92,59 @@ async def chatbot(message: MessageChat):
 
 # GETS DO API PARA FRONTEND
 
-@app.get("/webusers/")
-def read_web_users_route():
-    with get_web_session() as session:
-        statement = select(WebUser).order_by(desc(WebUser.id)).limit(10)
-        web_users = session.exec(statement).all()
-        return {"web_users": web_users}
+@app.post("/login/")
+async def read_web_users_route(login_info: LoginInfo):
+    try:
+        print("Login info:", login_info)
+        with Session(engine_web) as session:
+            # Check if user exists
+            user = session.exec(select(WebUser).where(WebUser.name == login_info.username)).first()
+
+            if user:
+                # User exists, return their token
+                logger.debug(f"User authenticated: {user.name}")
+                return {"id": user.id}
+            else:
+                # User doesn't exist, create new user
+                create_web_user_data = WebUser(
+                    name=login_info.username,
+                    token=login_info.password,  # Using password as token (in practice, consider hashing)
+                    # Optional default fields if your model requires them
+                    # genere="M",  
+                    # age=20       
+                )
+                new_user = create_web_user(create_web_user_data)
+                logger.debug(f"New user created: {new_user.name}")
+                return {"id": new_user.id}
+
+    except Exception as e:
+        logger.error(f"Error in login route: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error during login")
+    
+@app.post("/swipes/")
+async def read_web_swipes_route(user_id: SwipeBeguin):
+    try:
+        with Session(engine_web_products) as session:
+            # Select 10 random WebProducts
+            statement = select(WebProduct).order_by(func.random()).limit(10)
+            products = session.exec(statement).all()
+
+            if not products:
+                raise HTTPException(status_code=404, detail="No products found")
+
+            # Format the response as a list of product dictionaries
+            result = [
+                {
+                    "image_url": product.image_url,
+                    "price": product.price,
+                    "type_of_package": product.type_of_package,
+                    "description": product.description,
+                    "name_url": product.name_url
+                }
+                for product in products
+            ]
+            return result
+
+    except Exception as e:
+        logger.error(f"Error in swipes route: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error during fetching swipes")
