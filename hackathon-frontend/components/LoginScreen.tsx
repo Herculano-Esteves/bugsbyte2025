@@ -1,20 +1,40 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 
 export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // Credenciais fixas
-    //const validEmail = 'mcsonae@bugsbyte.com';
-    const validEmail = 'a';
-    const validPassword = '1234';
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('http://10.14.0.128:8000/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: email,
+          password: password,
+        }),
+      });
 
-    if (email === validEmail && password === validPassword) {
-      onLogin();
-    } else {
-      alert('Email ou senha inválidos.');
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Erro na resposta do servidor:', errorData);
+        Alert.alert('Erro', 'Algo deu errado no login.');
+        return;
+      }
+
+      const data = await response.json();
+      if (data.id) {
+        Alert.alert('Login bem-sucedido!', `ID do usuário: ${data.id}`);
+        onLogin();
+      } else {
+        Alert.alert('Erro', 'Resposta inesperada do servidor.');
+      }
+    } catch (error) {
+      console.error('Erro na requisição:', error);
+      Alert.alert('Erro', 'Não foi possível realizar o login.');
     }
   };
 
