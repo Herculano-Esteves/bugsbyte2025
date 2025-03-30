@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, ScrollView, Alert } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -13,71 +15,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useUser } from '@/hooks/UserContext';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-
-const products = [
-  {
-    id: 1,
-    name: 'Arroz Carolino',
-    image: require('../assets/images/arrozCarolino.jpg'),
-    description: 'Arroz integral saudável e nutritivo',
-  },
-  {
-    id: 2,
-    name: 'Feijão Catarino',
-    image: require('../assets/images/feijaoCatarino.jpg'),
-    description: 'Feijão catarino de alta qualidade',
-  },
-  {
-    id: 3,
-    name: 'Azeite Virgem Extra',
-    image: 'https://www.worten.pt/i/0b655be7732a8a73b9957875940ba3e7aed6e973',
-    description: 'Azeite virgem extra de primeira qualidade',
-  },
-  {
-    id: 4,
-    name: 'Pão de Trigo',
-    image: 'https://www.continente.pt/dw/image/v2/BDVS_PRD/on/demandware.static/-/Sites-col-master-catalog/default/dwdf4d85d6/images/col/785/7855600-frente.png?sw=2000&sh=2000',
-    description: 'Pão de trigo fresco e crocante',
-  }
-  // {
-  //   id: 5,
-  //   name: 'Leite Magro',
-  //   image: 'https://www.continente.pt/dw/image/v2/BDVS_PRD/on/demandware.static/-/Sites-col-master-catalog/default/dw6a5d60b5/images/col/687/6879889-hero.jpg?sw=280&sh=280',
-  //   description: 'Leite magro com baixo teor de gordura',
-  // },
-  // {
-  //   id: 6,
-  //   name: 'Ovos Biológicos',
-  //   image: 'https://www.continente.pt/dw/image/v2/BDVS_PRD/on/demandware.static/-/Sites-col-master-catalog/default/dwe8e16ee4/images/col/745/7453999-cima.jpg?sw=2000&sh=2000',
-  //   description: 'Ovos biológicos de galinhas felizes',
-  // },
-  // {
-  //   id: 7,
-  //   name: 'Maçãs Gala',
-  //   image: 'https://www.continente.pt/dw/image/v2/BDVS_PRD/on/demandware.static/-/Sites-col-master-catalog/default/dw750176fb/images/col/784/7848011-hero.jpg?sw=2000&sh=2000',
-  //   description: 'Maçãs gala frescas e saborosas',
-  // },
-  // {
-  //   id: 8,
-  //   name: 'Bananas da Madeira',
-  //   image: 'https://www.continente.pt/dw/image/v2/BDVS_PRD/on/demandware.static/-/Sites-col-master-catalog/default/dwd4c8df36/images/col/207/2076480-frente.jpg?sw=2000&sh=2000',
-  //   description: 'Bananas da Madeira frescas e doces',
-  // },
-  // {
-  //   id: 9,
-  //   name: 'Morangos Biológicos',
-  //   image: 'https://www.continente.pt/dw/image/v2/BDVS_PRD/on/demandware.static/-/Sites-col-master-catalog/default/dw07014595/images/col/826/8266638-topshot.jpg?sw=2000&sh=2000',
-  //   description: 'Morangos biológicos de qualidade superior',
-  // },
-  // {
-  //   id: 10,
-  //   name: 'Cenouras Biológicas',
-  //   image: 'https://www.continente.pt/dw/image/v2/BDVS_PRD/on/demandware.static/-/Sites-col-master-catalog/default/dw45098f83/images/col/738/7382406-frente.jpg?sw=2000&sh=2000',
-  //   description: 'Cenouras biológicas frescas e saborosas',
-  // }
-];
 
 const coupons = [
   {
@@ -115,13 +55,51 @@ const coupons = [
 ];
 
 export default function SwipeScreen() {
+  const { userId } = useUser();
+  const [products, setProducts] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedCoupons, setSelectedCoupons] = useState<number[]>([]);
   const [confirmationMessage, setConfirmationMessage] = useState<string | null>(null);
-  const [isConfirmed, setIsConfirmed] = useState<boolean>(false); // Novo estado para controlar a confirmação
+  const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
 
   const translateX = useSharedValue(0);
   const rotate = useSharedValue(0);
+
+  // Função para buscar produtos do backend
+  const fetchProducts = async () => {
+    try {
+      console.log('Buscando produtos para o usuário:', userId);
+      const response = await fetch('http://10.14.0.128:8000/swipes/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: Number(userId), // Garante que userId seja enviado como inteiro
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Erro na resposta do servidor:', errorData);
+        Alert.alert('Erro', 'Algo deu errado ao buscar os produtos.');
+        return;
+      }
+
+      const data = await response.json();
+      setProducts(data); // Atualiza o estado com os produtos recebidos
+    } catch (error) {
+      console.error('Erro na requisição:', error);
+      Alert.alert('Erro', 'Não foi possível buscar os produtos.');
+    }
+  };
+  useFocusEffect(
+    useCallback(() => {
+      if (userId) {
+        fetchProducts();
+      }
+    }, [userId])
+  );
 
   const handleSwipe = (direction) => {
     if (currentIndex >= products.length) return;
@@ -326,12 +304,14 @@ const goToNextProduct = () => {
       <PanGestureHandler onGestureEvent={gestureHandler}>
         <Animated.View style={[styles.card, animatedCardStyle]}>
           <Image
-            source={currentProduct.image}
+            source={{ uri: currentProduct.image_url }} // Exibe a imagem do produto
             style={styles.productImage}
             resizeMode="cover"
           />
-          <Text style={styles.productName}>{currentProduct.name}</Text>
-          <Text style={styles.productDescription}>{currentProduct.description}</Text>
+          <Text style={styles.productName}>{currentProduct.name_url}</Text> {/* Exibe o nome do produto */}
+          <Text style={styles.productDescription}>
+            Preço: €{currentProduct.price.toFixed(2)} / {currentProduct.type_of_package} {/* Exibe o preço e o tipo de embalagem */}
+          </Text>
 
           {/* Ícone de "Gosto" */}
           <Animated.View style={[styles.checkIcon, checkStyle]}>

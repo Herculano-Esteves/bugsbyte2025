@@ -7,11 +7,13 @@ sqlite_file_name_transactions = "db_transactions.sqlite"
 sqlite_file_name_users = "db_users.sqlite"
 sqlite_file_name_products = "db_products.sqlite"
 sqlite_file_name_web_products = "db_web_products.sqlite"
+sqlite_file_name_web_confirmations = "db_web_confirmations.sqlite"
 engine_transactions = create_engine(f"sqlite:///{sqlite_file_name_transactions}", echo=True)
 engine_users = create_engine(f"sqlite:///{sqlite_file_name_users}", echo=True)
 engine_web = create_engine(f"sqlite:///{sqlite_file_name_web}", echo=True)
 engine_products = create_engine(f"sqlite:///{sqlite_file_name_products}", echo=True)
 engine_web_products = create_engine(f"sqlite:///{sqlite_file_name_web_products}", echo=True)
+engine_web_confirmations = create_engine(f"sqlite:///{sqlite_file_name_web_confirmations}", echo=True)
 
 # Initialize database function
 def init_db():
@@ -21,6 +23,7 @@ def init_db():
     SQLModel.metadata.create_all(engine_transactions)  # Creates all tables defined in models
     SQLModel.metadata.create_all(engine_products)  # Creates all tables defined in models
     SQLModel.metadata.create_all(engine_web_products)  # Creates all tables defined in models
+    SQLModel.metadata.create_all(engine_web_confirmations)  # Creates all tables defined in models
     logging.debug("Database initialized.")
 
 # Session function to create database sessions
@@ -47,6 +50,11 @@ def get_products_session():
 @contextmanager
 def get_web_products_session():
     with Session(engine_web_products) as session:
+        yield session
+
+@contextmanager
+def get_web_confirmations_session():
+    with Session(engine_web_confirmations) as session:
         yield session
 
 if __name__ == "__main__":

@@ -5,6 +5,20 @@ from typing import Optional, Dict, List
 class MessageChat(BaseModel):
     message: str
 
+class LoginInfo(BaseModel):
+    username: str
+    password: str
+
+class SwipeBeguin(BaseModel):
+    user_id: int
+    
+class WebSwipes(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    user_id: int
+    type: bool
+    sku: int
+
+
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     account_no: str
@@ -34,15 +48,7 @@ class WebUser(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
     token: str
-    genere: str
-    age: int
 
-class WebSwipes(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    user_id: int
-    timestamp: int
-    type: bool
-    sku: int
 
 class WebProduct(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
