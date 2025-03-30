@@ -1,5 +1,5 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Slot } from 'expo-rouer';
+import { Slot } from 'expo-router';
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Image, View } from 'react-native';
@@ -63,7 +63,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="coupons"
+          name="cupoes"
           options={{
             title: 'Cupões',
             tabBarIcon: ({ focused }) => (
