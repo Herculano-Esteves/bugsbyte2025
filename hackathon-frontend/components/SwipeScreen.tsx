@@ -123,6 +123,36 @@ export default function SwipeScreen() {
     }
   };
 
+  const sendSelectedCoupons = async () => {
+    try {
+      const response = await fetch('http://10.14.0.128:8000/cuppons/add/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: Number(userId), // Garante que o userId seja enviado como inteiro
+          sku: selectedCoupons[0], // Primeiro cupom selecionado
+          sku2: selectedCoupons[1], // Segundo cupom selecionado
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Erro na resposta do servidor:', errorData);
+        Alert.alert('Erro', 'Algo deu errado ao enviar os cupons.');
+        return;
+      }
+  
+      const data = await response.json();
+      console.log('Cupons enviados com sucesso:', data);
+      Alert.alert('Sucesso', 'Cupons enviados com sucesso!');
+    } catch (error) {
+      console.error('Erro na requisição:', error);
+      Alert.alert('Erro', 'Não foi possível enviar os cupons.');
+    }
+  };
+
   const handleSwipe = (direction) => {
     if (currentIndex >= products.length) return;
   
@@ -266,10 +296,14 @@ const goToNextProduct = () => {
   };
 
   const handleConfirm = () => {
-    setIsConfirmed(true); // Define que a confirmação foi feita
-    setConfirmationMessage('Resgate os seus cupons no separador cupons');
-    console.log('Cupons selecionados:', selectedCoupons);
-    // Adicione aqui a lógica adicional para confirmar os cupons selecionados
+    if (selectedCoupons.length === 2) {
+      sendSelectedCoupons(); // Envia os cupons selecionados para o backend
+      setIsConfirmed(true); // Define que a confirmação foi feita
+      setConfirmationMessage('Resgate os seus cupons no separador cupons');
+      console.log('Cupons selecionados:', selectedCoupons);
+    } else {
+      Alert.alert('Erro', 'Selecione exatamente dois cupons.');
+    }
   };
 
   if (currentIndex >= products.length) {
