@@ -137,8 +137,6 @@ export default function SwipeScreen() {
       }
   
       const data = await response.json();
-      console.log('Cupons enviados com sucesso:', data);
-      Alert.alert('Sucesso', 'Cupons enviados com sucesso!');
     } catch (error) {
       console.error('Erro na requisição:', error);
       Alert.alert('Erro', 'Não foi possível enviar os cupons.');
@@ -301,21 +299,43 @@ const goToNextProduct = () => {
   if (currentIndex >= products.length) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.screenTitle}>Parabéns!</Text>
-        <Text style={styles.screenSubtitle}>
-          Você avaliou todos os produtos. Estas são as suas recompensas.
-        </Text>
+        {!isConfirmed && (
+          <>
+            <Text style={styles.screenTitle}>Parabéns!</Text>
+            <Text style={styles.screenSubtitle}>
+              Você avaliou todos os produtos. Estas são as suas recompensas.
+            </Text>
+          </>
+        )}
 
         {/* Exibe os cupons e o botão Confirmar apenas se não estiver confirmado */}
-        {!isConfirmed ? (
+        {isConfirmed ? (
+          <View style={styles.successContainer}>
+            {/* Ícone de sucesso */}
+            <View style={styles.successIconContainer}>
+              <Icon name="check-circle" size={100} color="#4CAF50" />
+            </View>
+
+            {/* Mensagem de confirmação */}
+            <Text style={styles.successMessage}>Parabéns!</Text>
+            <Text style={styles.successSubtitle}>
+              Resgate os seus cupons no separador "Cupões".
+            </Text>
+          </View>
+        ) : (
           <>
             <Text style={styles.chooseTwoText}>Escolha apenas dois cupons:</Text>
             <ScrollView contentContainerStyle={styles.couponsContainer}>
               {coupons.map((coupon) => (
                 <View key={coupon.sku} style={styles.couponCard}>
+                  {/* Adiciona a imagem no canto superior direito */}
+                  <Image
+                    source={{ uri: 'https://images-ext-1.discordapp.net/external/r1df2EaUQtFVdRg0DldpfZPR1ln3Gt8M-lFGzBW467w/%3Fquality%3D100%26rnd%3D132965704458570000/https/keepwells.pt/media/2wob3imk/benefits06.png?format=webp&quality=lossless' }} // URL da imagem
+                    style={styles.discountBadge}
+                  />
                   <Image source={{ uri: coupon.image_url }} style={styles.couponImage} />
                   <View style={styles.couponInfo}>
-                    <Text style={styles.couponTitle}>Cupao 10% de desconto no produto {coupon.name}</Text>
+                    <Text style={styles.couponTitle}>CUPÃO 10% de desconto no produto {coupon.name}</Text>
                   </View>
                   <TouchableOpacity
                     style={[
@@ -338,10 +358,6 @@ const goToNextProduct = () => {
               )}
             </ScrollView>
           </>
-        ) : (
-          <View style={styles.overlayContainer}>
-            <Text style={styles.confirmationMessage}>{confirmationMessage}</Text>
-          </View>
         )}
       </SafeAreaView>
     );
@@ -577,5 +593,44 @@ const styles = StyleSheet.create({
     backgroundColor: '#D32F2F', // Fundo para destacar a mensagem
     padding: 20,
     borderRadius: 10,
+  },
+  successContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  successIconContainer: {
+    marginBottom: 20,
+  },
+  successMessage: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+    textAlign: 'center',
+  },
+  successSubtitle: {
+    fontSize: 20,
+    color: '#FFF',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  backButton: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  backButtonText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  discountBadge: {
+    position: 'absolute',
+    top: 10, // Distância do topo
+    right: 230, // Distância da direita
+    width: 40, // Largura da imagem
+    height: 40, // Altura da imagem
+    zIndex: 1, // Garante que fique acima do conteúdo
   },
 });
