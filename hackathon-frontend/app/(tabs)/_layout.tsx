@@ -41,7 +41,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="home"
           options={{
-            title: 'Home',
+            title: 'Início',
             tabBarIcon: ({ focused }) => (
               <View>
                 <Svg
@@ -65,7 +65,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Coupons',
+            title: 'Cupos',
             tabBarIcon: ({ focused }) => (
               <View>
                 <Svg
@@ -105,7 +105,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="more"
           options={{
-            title: 'More',
+            title: 'Mais',
             tabBarIcon: ({ focused }) => (
               <View>
                 <Svg
