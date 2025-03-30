@@ -4,3 +4,4 @@ sqlmodel
 pandas
 openai
 pydantic
+xgboost
