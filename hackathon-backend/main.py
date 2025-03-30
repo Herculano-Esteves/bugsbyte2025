@@ -139,7 +139,8 @@ async def read_web_swipes_route(user_id: SwipeBeguin):
                     "price": product.price,
                     "type_of_package": product.type_of_package,
                     "description": product.description,
-                    "name_url": product.name_url
+                    "name_url": product.name_url,
+                    "sku": product.sku,
                 }
                 for product in products
             ]
