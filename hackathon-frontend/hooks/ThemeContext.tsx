@@ -33,8 +33,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Define a fonte como padrão para todos os textos
   Text.defaultProps = Text.defaultProps || {};
-  //Text.defaultProps.style = [{ fontFamily: 'Poppins-Regular' }, Text.defaultProps.style];
+  Text.defaultProps.style = [{ fontFamily: 'Poppins-Regular' }, Text.defaultProps.style];
 
+  
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
       {children}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useRouter } from 'expo-router'; // Importar o hook useRouter
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
@@ -12,6 +12,8 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -78,50 +80,143 @@ const products = [
   // }
 ];
 
-const coupons = [
-  {
-    id: 1,
-    discount: 15,
-    title: 'Desconto Especial',
-    description: '15% de desconto na sua próxima compra!',
-    validity: '2025-12-31',
-    image: 'https://www.continente.pt/dw/image/v2/BDVS_PRD/on/demandware.static/-/Sites-col-master-catalog/default/dw3c035882/images/col/671/6716050-frente.jpg?sw=2000&sh=2000',
-  },
-  {
-    id: 2,
-    discount: 10,
-    title: 'Oferta Exclusiva',
-    description: '10% de desconto em produtos selecionados!',
-    validity: '2025-11-30',
-    image: 'https://www.continente.pt/dw/image/v2/BDVS_PRD/on/demandware.static/-/Sites-col-master-catalog/default/dw3c035882/images/col/671/6716050-frente.jpg?sw=2000&sh=2000',
-  },
-  {
-    id: 3,
-    discount: 20,
-    title: 'Mega Desconto',
-    description: 'Aproveite 20% OFF em compras acima de R$100!',
-    validity: '2025-10-15',
-    image: 'https://www.continente.pt/dw/image/v2/BDVS_PRD/on/demandware.static/-/Sites-col-master-catalog/default/dw3c035882/images/col/671/6716050-frente.jpg?sw=2000&sh=2000',
-  },
-  {
-    id: 4,
-    discount: 5,
-    title: 'Desconto Simples',
-    description: '5% de desconto no checkout!',
-    validity: '2025-09-20',
-    image: 'https://www.continente.pt/dw/image/v2/BDVS_PRD/on/demandware.static/-/Sites-col-master-catalog/default/dw3c035882/images/col/671/6716050-frente.jpg?sw=2000&sh=2000',
-  },
-];
+import { useUser } from '@/hooks/UserContext'; // Import the UserContext hook
 
 export default function SwipeScreen() {
+  const { userId } = useUser(); // Retrieve userId from the context
+  const [coupons, setCoupons] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedCoupons, setSelectedCoupons] = useState<number[]>([]);
   const [confirmationMessage, setConfirmationMessage] = useState<string | null>(null);
-  const [isConfirmed, setIsConfirmed] = useState<boolean>(false); // Novo estado para controlar a confirmação
-  const router = useRouter(); // Adicione o useRouter aqui no topo do componente
+  const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
+  const router = useRouter();
 
   const translateX = useSharedValue(0);
   const rotate = useSharedValue(0);
+
+
+  const fetchCoupons = async () => {
+    try {
+      console.log('Buscando cupons...');
+      const response = await fetch('http://10.14.0.128:8000/cuppons/', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Erro na resposta do servidor:', errorData);
+        Alert.alert('Erro', 'Algo deu errado ao buscar os cupons.');
+        return;
+      }
+
+      const data = await response.json();
+      setCoupons(data); // Atualiza o estado com os cupons recebidos
+      console.log('Cupons recebidos:', data);
+    } catch (error) {
+      console.error('Erro na requisição:', error);
+      Alert.alert('Erro', 'Não foi possível buscar os cupons.');
+    }
+  };
+
+  // Função para buscar produtos do backend
+  const fetchProducts = async () => {
+    try {
+      console.log('Buscando produtos para o usuário:', userId);
+      const response = await fetch('http://10.14.0.128:8000/swipes/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: Number(userId), // Garante que userId seja enviado como inteiro
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Erro na resposta do servidor:', errorData);
+        Alert.alert('Erro', 'Algo deu errado ao buscar os produtos.');
+        return;
+      }
+
+      const data = await response.json();
+      setProducts(data); // Atualiza o estado com os produtos recebidos
+    } catch (error) {
+      console.error('Erro na requisição:', error);
+      Alert.alert('Erro', 'Não foi possível buscar os produtos.');
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (userId) {
+        fetchProducts();
+        fetchCoupons();
+      }
+    }, [userId])
+  );
+  
+  const confirmSwipe = async (type: boolean, sku: number) => {
+    try {
+      const response = await fetch('http://10.14.0.128:8000/swipes/confirm/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: Number(userId), // Garante que userId seja enviado como inteiro
+          type: type, // true para "gosto", false para "não gosto"
+          sku: sku, // SKU do produto
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Erro na resposta do servidor:', errorData);
+        Alert.alert('Erro', 'Algo deu errado ao confirmar o swipe.');
+        return;
+      }
+  
+      const data = await response.json();
+      console.log('Swipe confirmado com sucesso:', data);
+    } catch (error) {
+      console.error('Erro na requisição:', error);
+      Alert.alert('Erro', 'Não foi possível confirmar o swipe.');
+    }
+  };
+
+  const sendSelectedCoupons = async () => {
+    try {
+      const response = await fetch('http://10.14.0.128:8000/cuppons/add/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: Number(userId), // Garante que o userId seja enviado como inteiro
+          sku: selectedCoupons[0], // Primeiro cupom selecionado
+          sku2: selectedCoupons[1], // Segundo cupom selecionado
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Erro na resposta do servidor:', errorData);
+        Alert.alert('Erro', 'Algo deu errado ao enviar os cupons.');
+        return;
+      }
+  
+      const data = await response.json();
+      console.log('Cupons enviados com sucesso:', data);
+      Alert.alert('Sucesso', 'Cupons enviados com sucesso!');
+    } catch (error) {
+      console.error('Erro na requisição:', error);
+      Alert.alert('Erro', 'Não foi possível enviar os cupons.');
+    }
+  };
 
   const handleSwipe = (direction) => {
     if (currentIndex >= products.length) return;
@@ -218,14 +313,14 @@ export default function SwipeScreen() {
     ],
   }));
 
-  const toggleCouponSelection = (id: number) => {
+  const toggleCouponSelection = (sku: number) => {
     setSelectedCoupons((prevSelected) => {
-      if (prevSelected.includes(id)) {
+      if (prevSelected.includes(sku)) {
         // Remove o cupom se já estiver selecionado
-        return prevSelected.filter((couponId) => couponId !== id);
+        return prevSelected.filter((couponSku) => couponSku !== sku);
       } else if (prevSelected.length < 2) {
         // Adiciona o cupom se menos de 2 estiverem selecionados
-        return [...prevSelected, id];
+        return [...prevSelected, sku];
       }
       // Retorna o estado atual se já houver 2 selecionados
       return prevSelected;
@@ -244,24 +339,22 @@ export default function SwipeScreen() {
         {/* Exibe os cupons e o botão Confirmar apenas se não estiver confirmado */}
         {!isConfirmed ? (
           <>
-            <Text style={styles.chooseTwoText}>Escolha apenas duas:</Text>
+            <Text style={styles.chooseTwoText}>Escolha apenas dois cupons:</Text>
             <ScrollView contentContainerStyle={styles.couponsContainer}>
               {coupons.map((coupon) => (
-                <View key={coupon.id} style={styles.couponCard}>
-                  <Image source={{ uri: coupon.image }} style={styles.couponImage} />
+                <View key={coupon.sku} style={styles.couponCard}>
+                  <Image source={{ uri: coupon.image_url }} style={styles.couponImage} />
                   <View style={styles.couponInfo}>
-                    <Text style={styles.couponTitle}>{coupon.title}</Text>
-                    <Text style={styles.couponDescription}>{coupon.description}</Text>
-                    <Text style={styles.couponValidity}>Válido até {coupon.validity}</Text>
+                    <Text style={styles.couponTitle}>Cupao 10% de desconto no produto {coupon.name}</Text>
                   </View>
                   <TouchableOpacity
                     style={[
                       styles.selectionBox,
-                      selectedCoupons.includes(coupon.id) && styles.selectionBoxSelected,
+                      selectedCoupons.includes(coupon.sku) && styles.selectionBoxSelected,
                     ]}
-                    onPress={() => toggleCouponSelection(coupon.id)}
+                    onPress={() => toggleCouponSelection(coupon.sku)}
                   >
-                    {selectedCoupons.includes(coupon.id) && (
+                    {selectedCoupons.includes(coupon.sku) && (
                       <Icon name="check" size={28} color="#FFF" />
                     )}
                   </TouchableOpacity>
@@ -284,7 +377,6 @@ export default function SwipeScreen() {
       </View>
     );
   }
-
   const currentProduct = products[currentIndex];
 
   return (
@@ -345,7 +437,8 @@ const styles = StyleSheet.create({
     padding: 16,
     flexDirection: 'row', // Alinha o conteúdo horizontalmente
     alignItems: 'center',
-    width: '90%', // Ocupa 90% da largura da tela
+    justifyContent: 'space-between', // Garante que os elementos fiquem nas extremidades
+    width: 370, // Largura do cartão
     marginBottom: 16,
     alignSelf: 'center', // Centraliza o cupom horizontalmente
     elevation: 3,
@@ -358,21 +451,6 @@ const styles = StyleSheet.create({
   },
   couponInfo: {
     flex: 1, // Faz o texto ocupar o espaço restante
-  },
-  couponTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 4,
-    color: '#333',
-  },
-  couponDescription: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  couponValidity: {
-    fontSize: 12,
-    color: '#999',
   },
   selectionBox: {
     width: 32,
@@ -390,7 +468,7 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     backgroundColor: '#4CAF50',
-    width: 350,
+    width: 370,
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',

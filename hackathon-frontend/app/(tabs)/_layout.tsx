@@ -65,7 +65,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="cupoes"
           options={{
-            title: 'Cupos',
+            title: 'Cupoes',
             tabBarIcon: ({ focused }) => (
               <View>
                 <Svg
