@@ -73,9 +73,9 @@ class WebProduct(SQLModel, table=True):
 class Product(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     sku: int
-    name: str  # Mapped from product_dsc
-    category: int  # Mapped from cat_cd
-    category_desc: str  # Mapped from cat_dsc_ext
-    short_desc: str  # Mapped from product_short_dsc
-    sales_data: List[Dict[str, int]] = Field(sa_column=Column(JSON))  # Store dates and values as JSON
+    name: str
+    category: int
+    category_desc: str
+    short_desc: str
+    sales_data: List[Dict[str, int]] = Field(sa_column=Column(JSON))
 
