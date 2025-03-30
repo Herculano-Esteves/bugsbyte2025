@@ -139,7 +139,8 @@ async def read_web_swipes_route(user_id: SwipeBeguin):
                     "price": product.price,
                     "type_of_package": product.type_of_package,
                     "description": product.description,
-                    "name_url": product.name_url
+                    "name_url": product.name_url,
+                    "sku": product.sku,
                 }
                 for product in products
             ]
@@ -147,4 +148,48 @@ async def read_web_swipes_route(user_id: SwipeBeguin):
 
     except Exception as e:
         logger.error(f"Error in swipes route: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error during fetching swipes")
+    
+@app.post("/swipes/confirm/")
+async def confirm_swipe_route(web_swipe: WebSwipes):
+    try:
+        with Session(engine_web_confirmations) as session:
+
+            # Create a new WebSwipes entry
+            new_swipe = WebSwipes(
+                user_id=web_swipe.user_id,
+                type=web_swipe.type,
+                sku=web_swipe.sku
+            )
+            session.add(new_swipe)
+            session.commit()
+            session.refresh(new_swipe)
+
+            return {"message": "Swipe confirmed successfully", "swipe_id": new_swipe.id}
+
+    except Exception as e:
+        logger.error(f"Error in confirm swipe route: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error during swipe confirmation")
+    
+@app.get("/swipes/confirm/")
+async def confirm_swipe_route():
+    try:
+        with Session(engine_web_confirmations) as session:
+            # Select all WebSwipes
+            statement = select(WebSwipes)
+            swipes = session.exec(statement).all()
+
+            # Format the response as a list of swipe dictionaries
+            result = [
+                {
+                    "user_id": swipe.user_id,
+                    "type": swipe.type,
+                    "sku": swipe.sku,
+                }
+                for swipe in swipes
+            ]
+            return result
+
+    except Exception as e:
+        logger.error(f"Error in confirm swipes route: {e}")
         raise HTTPException(status_code=500, detail="Internal server error during fetching swipes")

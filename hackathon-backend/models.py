@@ -11,11 +11,10 @@ class LoginInfo(BaseModel):
 
 class SwipeBeguin(BaseModel):
     user_id: int
-
+    
 class WebSwipes(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_id: int
-    timestamp: int
     type: bool
     sku: int
 
