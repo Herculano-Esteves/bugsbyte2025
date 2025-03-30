@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert } from 'react-native';
 import { useTheme } from '@/hooks/ThemeContext';
 
 export default function ChatComponent() {
@@ -8,15 +8,37 @@ export default function ChatComponent() {
     { id: '1', text: 'Olá! Como posso ajudar você hoje?', sender: 'AI' },
   ]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim()) {
-      setMessages((prev) => [
-        ...prev,
-        { id: Date.now().toString(), text: input, sender: 'User' },
-        { id: (Date.now() + 1).toString(), text: 'Resposta do AI (mock)', sender: 'AI' },
-      ]);
+      const userMessage = { id: Date.now().toString(), text: input, sender: 'User' };
+      setMessages((prev) => [...prev, userMessage]);
       setInput('');
+      setLoading(true);
+
+      try {
+        const response = await fetch('http://10.14.0.128:8000/chatbot/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: input }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro ao se comunicar com o backend.');
+        }
+
+        const data = await response.json();
+        const aiMessage = { id: Date.now().toString(), text: data.message, sender: 'AI' };
+        setMessages((prev) => [...prev, aiMessage]);
+      } catch (error) {
+        Alert.alert('Erro', 'Não foi possível enviar a mensagem.');
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -26,7 +48,7 @@ export default function ChatComponent() {
     <View style={styles.container}>
       {/* Cabeçalho */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Chat</Text>
+        <Text style={styles.headerTitle}>ChatBot</Text>
       </View>
 
       {/* Lista de mensagens */}
@@ -43,8 +65,8 @@ export default function ChatComponent() {
             <Text
               style={
                 item.sender === 'AI'
-                  ? styles.aiMessageText // Texto preto para AI
-                  : styles.userMessageText // Texto branco para o usuário
+                  ? styles.aiMessageText
+                  : styles.userMessageText
               }
             >
               {item.text}
@@ -62,9 +84,14 @@ export default function ChatComponent() {
           onChangeText={setInput}
           placeholder="Digite sua mensagem..."
           placeholderTextColor="#999"
+          editable={!loading}
         />
-        <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-          <Text style={styles.sendButtonText}>Enviar</Text>
+        <TouchableOpacity
+          style={styles.sendButton}
+          onPress={handleSend}
+          disabled={loading}
+        >
+          <Text style={styles.sendButtonText}>{loading ? 'Enviando...' : 'Enviar'}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -107,10 +134,10 @@ const createStyles = (isDarkMode: boolean) =>
       alignSelf: 'flex-end',
     },
     aiMessageText: {
-      color: '#333', // Texto preto para AI
+      color: '#333',
     },
     userMessageText: {
-      color: '#FFF', // Texto branco para o usuário
+      color: '#FFF',
     },
     inputContainer: {
       flexDirection: 'row',

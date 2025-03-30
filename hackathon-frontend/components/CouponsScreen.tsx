@@ -15,7 +15,7 @@ export default function CouponsScreen() {
 
   const fetchUserCoupons = async () => {
     try {
-      console.log('Buscando cupons para o usuário:', userId);
+      console.log('Buscando cupões para o usuário:', userId);
       const response = await fetch('http://10.14.0.128:8000/cuppons/get/', {
         method: 'POST',
         headers: {
@@ -28,17 +28,13 @@ export default function CouponsScreen() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Erro na resposta do servidor:', errorData);
-        Alert.alert('Erro', 'Algo deu errado ao buscar os cupons.');
         return;
       }
 
       const data = await response.json();
       setCoupons(data); // Atualiza o estado com os cupons recebidos
-      console.log('Cupons recebidos:', data);
+      console.log('Cupões recebidos:', data);
     } catch (error) {
-      console.error('Erro na requisição:', error);
-      Alert.alert('Erro', 'Não foi possível buscar os cupons.');
     }
   };
 
@@ -58,10 +54,16 @@ export default function CouponsScreen() {
   const renderCoupon = ({ item }: { item: typeof coupons[0] }) => {
     return (
       <View style={styles.couponCard}>
-        <Image source={{ uri: item.image_url }} style={styles.couponImage} /> {/* Corrigido para usar image_url */}
+        {/* Adiciona a imagem no canto superior direito */}
+        <Image
+          source={{ uri: 'https://images-ext-1.discordapp.net/external/r1df2EaUQtFVdRg0DldpfZPR1ln3Gt8M-lFGzBW467w/%3Fquality%3D100%26rnd%3D132965704458570000/https/keepwells.pt/media/2wob3imk/benefits06.png?format=webp&quality=lossless' }} // URL da imagem
+          style={styles.discountBadge}
+        />
+        <Image source={{ uri: item.image_url }} style={styles.couponImage} />
         <View style={styles.couponInfo}>
-          <Text style={styles.couponTitle}>{item.name}</Text> {/* Corrigido para usar name */}
-          <Text style={styles.couponSku}>SKU: {item.sku}</Text> {/* Exibe o SKU */}
+          <Text style={styles.couponTitle}>
+            Cupão 10% de desconto no produto {item.name}
+          </Text>
         </View>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.qrCodeButton} onPress={() => handleShowQRCode(item)}>
@@ -196,5 +198,13 @@ const createStyles = (isDarkMode: boolean) =>
       paddingVertical: 6,
       paddingHorizontal: 10,
       alignSelf: 'center',
+    },
+    discountBadge: {
+      position: 'absolute',
+      top: 10, // Distância do topo
+      right: 10, // Distância da direita
+      width: 100, // Largura da imagem
+      height: 100, // Altura da imagem
+      zIndex: 1, // Garante que fique acima do conteúdo
     },
   });
