@@ -25,7 +25,7 @@ export default function HomeScreen() {
         {/* Cartão de Boas-Vindas */}
         <View style={styles.welcomeCard}>
           <View>
-            <Text style={styles.greeting}>Olá, Gonçalo 👋</Text>
+            <Text style={styles.greeting}>Olá, Utilizador 👋</Text>
             <Text style={styles.earned}>Já ganhou 0,00 €</Text>
           </View>
           <TouchableOpacity>

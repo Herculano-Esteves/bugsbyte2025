@@ -28,7 +28,6 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
       const data = await response.json();
       if (data.id) {
         setUserId(Number(data.id)); // Converte data.id para inteiro antes de salvar
-        Alert.alert('Login bem-sucedido!', `ID do usuário: ${data.id}`);
         onLogin();
       } else {
         Alert.alert('Erro', 'Resposta inesperada do servidor.');
@@ -42,7 +41,7 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   return (
     <View style={styles.container}>
       <Image
-        source={{ uri: 'https://play-lh.googleusercontent.com/lJKRzAhHilS1kvk4slcYJKXVPzN-4l4DBOha8DnYcRRYVBSLYwavfSIUE35_GV2ohA' }}
+        source={{ uri: 'https://i.imgur.com/6sS7wOL.png://play-lh.googleusercontent.com/lJKRzAhHilS1kvk4slcYJKXVPzN-4l4DBOha8DnYcRRYVBSLYwavfSIUE35_GV2ohA' }}
         style={styles.logo}
       />
       <Text style={styles.title}>Bem-vindo ao Continente</Text>
@@ -77,10 +76,10 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   logo: {
-    width: 100,
-    height: 100,
+    width: 200, // Aumenta a largura da imagem
+    height: 120, // Define uma altura maior para torná-la retangular
     marginBottom: 20,
-    borderRadius: 50,
+    borderRadius: 0, // Remove o arredondamento
   },
   title: {
     fontSize: 24,

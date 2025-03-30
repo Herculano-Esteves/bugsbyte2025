@@ -119,6 +119,7 @@ const createStyles = (isDarkMode: boolean) =>
       fontWeight: 'bold',
       color: '#FFF',
       marginBottom: 8,
+      marginTop: -20 ,
     },
     screenSubtitle: {
       fontSize: 16,
