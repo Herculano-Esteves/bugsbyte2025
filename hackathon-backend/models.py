@@ -4,8 +4,6 @@ from typing import Optional, Dict, List
 
 class MessageChat(BaseModel):
     message: str
-    status: int
-    prev_message: str
 
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
