@@ -101,13 +101,50 @@ export default function SwipeScreen() {
     }, [userId])
   );
 
+  const confirmSwipe = async (type: boolean, sku: number) => {
+    try {
+      const response = await fetch('http://10.14.0.128:8000/swipes/confirm/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: Number(userId), // Garante que userId seja enviado como inteiro
+          type: type, // true para "gosto", false para "não gosto"
+          sku: sku, // SKU do produto
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Erro na resposta do servidor:', errorData);
+        Alert.alert('Erro', 'Algo deu errado ao confirmar o swipe.');
+        return;
+      }
+  
+      const data = await response.json();
+      console.log('Swipe confirmado com sucesso:', data);
+    } catch (error) {
+      console.error('Erro na requisição:', error);
+      Alert.alert('Erro', 'Não foi possível confirmar o swipe.');
+    }
+  };
+
   const handleSwipe = (direction) => {
     if (currentIndex >= products.length) return;
+  
+    const currentProduct = products[currentIndex];
+    const type = direction === 'right'; // true para "gosto", false para "não gosto"
+  
     console.log(
-      direction === 'right'
-        ? `Gostou do produto: ${products[currentIndex].name}`
-        : `Não gostou do produto: ${products[currentIndex].name}`
+      type
+        ? `Gostou do produto: ${currentProduct.name_url}`
+        : `Não gostou do produto: ${currentProduct.name_url}`
     );
+  
+    // Envia os dados para o backend
+    confirmSwipe(type, currentProduct.sku);
+  
     runOnJS(goToNextProduct)();
   };
 
